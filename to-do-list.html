@@ -1,1 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        .task-done {
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <h1 class="text-center">To-Do List</h1>
+    
+    <!-- Input form to add new tasks -->
+    <div class="input-group mb-3">
+        <input id="new-task" type="text" class="form-control" placeholder="Add a new task" aria-label="Add a new task">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="button" onclick="addTask()">Add Task</button>
+        </div>
+    </div>
+
+    <!-- To-Do List -->
+    <ul id="task-list" class="list-group">
+        <!-- Tasks will be dynamically added here -->
+    </ul>
+</div>
+
+<!-- Bootstrap JS and jQuery (needed for Bootstrap JS components) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Function to add a new task
+    function addTask() {
+        const taskInput = document.getElementById("new-task");
+        const taskText = taskInput.value;
+
+        if (taskText === "") {
+            alert("Please enter a task.");
+            return;
+        }
+
+        // Create a new list item for the task
+        const listItem = document.createElement("li");
+        listItem.className = "list-group-item d-flex justify-content-between align-items-center";
+        
+        // Add the task text
+        listItem.innerHTML = `
+            <span>${taskText}</span>
+            <div>
+                <button class="btn btn-success btn-sm" onclick="markDone(this)">Done</button>
+                <button class="btn btn-danger btn-sm ml-2" onclick="removeTask(this)">Delete</button>
+            </div>
+        `;
+        
+        // Add the new task to the task list
+        document.getElementById("task-list").appendChild(listItem);
+        
+        // Clear the input field
+        taskInput.value = "";
+    }
+
+    // Function to mark a task as done
+    function markDone(button) {
+        const taskItem = button.parentElement.parentElement;
+        const taskText = taskItem.querySelector("span");
+
+        // Toggle the task-done class to cross out the text
+        taskText.classList.toggle("task-done");
+    }
+
+    // Function to remove a task
+    function removeTask(button) {
+        const taskItem = button.parentElement.parentElement;
+        taskItem.remove();
+    }
+</script>
+
+</body>
+</html>
 
