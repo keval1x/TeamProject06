@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced To-Do List with Sidebar</title>
     
     <!-- Bootstrap CSS -->
@@ -65,6 +64,23 @@
             from { opacity: 1; transform: translateY(0); }
             to { opacity: 0; transform: translateY(-20px); }
         }
+        .progress-circle {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+        .progress-circle svg {
+            transform: rotate(-90deg);
+        }
+        .progress-circle .circle-bg {
+            stroke: #eee;
+        }
+        .progress-circle .circle-progress {
+            stroke: #1f77b4;
+            stroke-dasharray: 113;
+            stroke-dashoffset: 113;
+            transition: stroke-dashoffset 0.5s ease;
+        }
     </style>
 </head>
 <body>
@@ -72,6 +88,7 @@
 <div class="sidebar">
     <h5>Menu</h5>
     <ul class="list-group">
+        <li class="list-group-item bg-dark text-light" onclick="showTasks()">Tasks</li>
         <li class="list-group-item bg-dark text-light" onclick="viewHistory()">View History</li>
         <li class="list-group-item bg-dark text-light" onclick="openSettings()">Settings</li>
     </ul>
@@ -80,23 +97,26 @@
 <div class="container">
     <h1 class="text-center mb-4" style="color:#333;">Advanced To-Do List</h1>
 
-    <!-- Progress Bar -->
-    <div class="progress mb-4">
-        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
-    </div>
-
-    <!-- Input form to add new tasks -->
-    <div class="input-group mb-3">
-        <input id="new-task" type="text" class="form-control" placeholder="Add a new task" aria-label="Add a new task">
-        <div class="input-group-append">
-            <button class="btn btn-primary" type="button" onclick="addTask()">Add Task</button>
+    <!-- Tasks Section -->
+    <div id="tasks-section">
+        <!-- Progress Bar -->
+        <div class="progress mb-4">
+            <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
         </div>
-    </div>
 
-    <!-- To-Do List -->
-    <ul id="task-list" class="list-group mb-4">
-        <!-- Tasks will be dynamically added here -->
-    </ul>
+        <!-- Input form to add new tasks -->
+        <div class="input-group mb-3">
+            <input id="new-task" type="text" class="form-control" placeholder="Add a new task" aria-label="Add a new task">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" onclick="addTask()">Add Task</button>
+            </div>
+        </div>
+
+        <!-- To-Do List -->
+        <ul id="task-list" class="list-group mb-4">
+            <!-- Tasks will be dynamically added here -->
+        </ul>
+    </div>
 
     <!-- History -->
     <div id="history-section" style="display:none;">
@@ -147,6 +167,27 @@
         historyList.prepend(historyItem);
     }
 
+    // Function to show tasks section
+    function showTasks() {
+        document.getElementById("tasks-section").style.display = 'block';
+        document.getElementById("history-section").style.display = 'none';
+        document.getElementById("settings-section").style.display = 'none';
+    }
+
+    // Function to view history
+    function viewHistory() {
+        document.getElementById("tasks-section").style.display = 'none';
+        document.getElementById("history-section").style.display = 'block';
+        document.getElementById("settings-section").style.display = 'none';
+    }
+
+    // Function to open settings
+    function openSettings() {
+        document.getElementById("tasks-section").style.display = 'none';
+        document.getElementById("history-section").style.display = 'none';
+        document.getElementById("settings-section").style.display = 'block';
+    }
+
     // Function to add a new task
     function addTask() {
         const taskInput = document.getElementById("new-task");
@@ -165,13 +206,19 @@
         listItem.className = "list-group-item fadeIn";
         listItem.id = taskId;
 
+        const circumference = 2 * Math.PI * 18; // For progress circle
+
         // Add the task text and buttons for actions
         listItem.innerHTML = `
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <span class="task-title">${taskText}</span>
-                    <div class="progress mt-2">
-                        <div id="progress-bar-${taskId}" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                    <div class="progress-circle mt-2">
+                        <svg width="40" height="40">
+                            <circle class="circle-bg" cx="20" cy="20" r="18" stroke-width="4" fill="none" />
+                            <circle id="circle-progress-${taskId}" class="circle-progress" cx="20" cy="20" r="18" stroke-width="4" fill="none"
+                            stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}" />
+                        </svg>
                     </div>
                 </div>
                 <div>
@@ -193,21 +240,39 @@
 
     // Function to add a subtask
     function addSubtask(taskId) {
-        const subtaskText = prompt("Enter subtask:");
-        if (!subtaskText) return;
-
         const subtaskList = document.getElementById(`subtask-list-${taskId}`);
+
         const subtaskItem = document.createElement("li");
         subtaskItem.className = "list-group-item subtask-item fadeIn";
 
         subtaskItem.innerHTML = `
-            <span>${subtaskText}</span>
-            <button class="btn btn-success btn-sm float-right" onclick="markSubtaskDone(this, '${taskId}')">Done</button>
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Enter subtask" onkeypress="submitSubtask(event, this, '${taskId}')">
+            </div>
         `;
 
         subtaskList.appendChild(subtaskItem);
-        updateProgress();
-        logAction(`Added subtask: ${subtaskText}`);
+    }
+
+    // Function to handle subtask input submission
+    function submitSubtask(event, inputElement, taskId) {
+        if (event.key === 'Enter') {
+            const subtaskText = inputElement.value.trim();
+            if (subtaskText === '') {
+                alert('Please enter a subtask.');
+                return;
+            }
+
+            const subtaskItem = inputElement.parentElement.parentElement;
+            subtaskItem.innerHTML = `
+                <span>${subtaskText}</span>
+                <button class="btn btn-success btn-sm float-right" onclick="markSubtaskDone(this, '${taskId}')">Done</button>
+            `;
+
+            updateSubtaskProgress(taskId);
+            updateProgress();
+            logAction(`Added subtask: ${subtaskText}`);
+        }
     }
 
     // Function to mark a task as done
@@ -224,9 +289,10 @@
             if (doneButton) doneButton.remove();
         });
 
-        // Update progress bar for the task
-        const taskProgressBar = document.getElementById(`progress-bar-${taskId}`);
-        taskProgressBar.style.width = isDone ? "100%" : "0%";
+        // Update progress circle for the task
+        const circle = document.getElementById(`circle-progress-${taskId}`);
+        const circumference = 2 * Math.PI * 18;
+        circle.style.strokeDashoffset = isDone ? 0 : circumference;
 
         updateProgress();
         logAction(`Marked task "${taskTitle.textContent}" as ${isDone ? 'done' : 'not done'}`);
@@ -247,18 +313,20 @@
         const taskItem = document.getElementById(taskId);
         const subtasks = taskItem.querySelectorAll(".subtask-item");
         const completedSubtasks = taskItem.querySelectorAll(".subtask-item .task-done");
-        const taskProgressBar = document.getElementById(`progress-bar-${taskId}`);
+        const circle = document.getElementById(`circle-progress-${taskId}`);
+        const circumference = 2 * Math.PI * 18;
 
         if (subtasks.length > 0) {
             const progress = (completedSubtasks.length / subtasks.length) * 100;
-            taskProgressBar.style.width = `${progress}%`;
+            const offset = circumference - (progress / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
 
             // If all subtasks are done, mark the task as done
             if (completedSubtasks.length === subtasks.length) {
                 taskItem.querySelector(".task-title").classList.add("task-done");
             }
         } else {
-            taskProgressBar.style.width = "0%";
+            circle.style.strokeDashoffset = circumference;
         }
     }
 
@@ -270,18 +338,6 @@
         setTimeout(() => taskItem.remove(), 500);
         updateProgress();
         logAction(`Deleted task: ${taskText}`);
-    }
-
-    // Function to view history
-    function viewHistory() {
-        document.getElementById("history-section").style.display = 'block';
-        document.getElementById("settings-section").style.display = 'none';
-    }
-
-    // Function to open settings
-    function openSettings() {
-        document.getElementById("settings-section").style.display = 'block';
-        document.getElementById("history-section").style.display = 'none';
     }
 
     // Function to change font
@@ -353,9 +409,18 @@
 
         const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
         document.getElementById("progress-bar").style.width = `${progress}%`;
+
+        // Reset progress bar when all tasks are completed
+        if (completedTasks === totalTasks && totalTasks > 0) {
+            setTimeout(() => {
+                document.getElementById("progress-bar").style.width = `0%`;
+            }, 1000);
+        }
     }
+
+    // Initially show tasks section
+    showTasks();
 </script>
 
 </body>
 </html>
-
