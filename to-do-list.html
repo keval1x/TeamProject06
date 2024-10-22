@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List with Sidebar</title>
+    <title>Advanced To-Do List with Sidebar</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
@@ -13,6 +13,7 @@
             background-color: #f0f4f8; /* Pale blue background */
             color: #000;
             font-family: Arial, sans-serif;
+            transition: background-color 0.5s ease;
         }
         .sidebar {
             background-color: #333;
@@ -57,12 +58,12 @@
             animation: fadeOut 0.5s ease-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
         }
     </style>
 </head>
@@ -97,7 +98,7 @@
         <!-- Tasks will be dynamically added here -->
     </ul>
 
-    <!-- History (Initially Hidden) -->
+    <!-- History -->
     <div id="history-section" style="display:none;">
         <h5>Action History</h5>
         <ul id="history-list" class="list-group">
@@ -105,7 +106,7 @@
         </ul>
     </div>
 
-    <!-- Settings (Initially Hidden) -->
+    <!-- Settings -->
     <div id="settings-section" style="display:none;">
         <h5>Settings</h5>
         <label for="font-select">Select Font:</label>
@@ -114,6 +115,9 @@
             <option value="Verdana">Verdana</option>
             <option value="Courier New">Courier New</option>
             <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="'Comic Sans MS'">Comic Sans MS</option>
+            <option value="Impact">Impact</option>
         </select>
         
         <label for="color-select" class="mt-3">Select Color Scheme:</label>
@@ -121,6 +125,8 @@
             <option value="default">Grey, Black, Pale Blue</option>
             <option value="dark">Black, Dark Grey, Red</option>
             <option value="light">White, Grey, Blue</option>
+            <option value="green">Green, Dark Green, Light Green</option>
+            <option value="purple">Purple, Dark Purple, Lavender</option>
         </select>
     </div>
 </div>
@@ -131,11 +137,20 @@
 
 <script>
     let taskCounter = 0;
+    let historyList = document.getElementById("history-list");
+
+    // Function to log actions to history
+    function logAction(action) {
+        const historyItem = document.createElement("li");
+        historyItem.className = "list-group-item";
+        historyItem.textContent = action;
+        historyList.prepend(historyItem);
+    }
 
     // Function to add a new task
     function addTask() {
         const taskInput = document.getElementById("new-task");
-        const taskText = taskInput.value;
+        const taskText = taskInput.value.trim();
 
         if (taskText === "") {
             alert("Please enter a task.");
@@ -173,6 +188,7 @@
         
         taskInput.value = "";
         updateProgress();
+        logAction(`Added task: ${taskText}`);
     }
 
     // Function to add a subtask
@@ -191,12 +207,29 @@
 
         subtaskList.appendChild(subtaskItem);
         updateProgress();
+        logAction(`Added subtask: ${subtaskText}`);
     }
 
     // Function to mark a task as done
     function markDone(taskId) {
         const taskItem = document.getElementById(taskId);
-        taskItem.querySelector(".task-title").classList.toggle("task-done");
+        const taskTitle = taskItem.querySelector(".task-title");
+        const isDone = taskTitle.classList.toggle("task-done");
+
+        // Mark all subtasks as done
+        const subtasks = taskItem.querySelectorAll(".subtask-item span");
+        subtasks.forEach(subtask => {
+            subtask.classList.toggle("task-done", isDone);
+            const doneButton = subtask.parentElement.querySelector("button");
+            if (doneButton) doneButton.remove();
+        });
+
+        // Update progress bar for the task
+        const taskProgressBar = document.getElementById(`progress-bar-${taskId}`);
+        taskProgressBar.style.width = isDone ? "100%" : "0%";
+
+        updateProgress();
+        logAction(`Marked task "${taskTitle.textContent}" as ${isDone ? 'done' : 'not done'}`);
     }
 
     // Function to mark a subtask as done
@@ -204,16 +237,39 @@
         const subtaskItem = button.parentElement;
         subtaskItem.querySelector("span").classList.toggle("task-done");
         button.remove();
+        updateSubtaskProgress(taskId);
         updateProgress();
+        logAction(`Completed subtask: ${subtaskItem.textContent.trim()}`);
+    }
+
+    // Update progress for individual task based on subtasks
+    function updateSubtaskProgress(taskId) {
+        const taskItem = document.getElementById(taskId);
+        const subtasks = taskItem.querySelectorAll(".subtask-item");
+        const completedSubtasks = taskItem.querySelectorAll(".subtask-item .task-done");
+        const taskProgressBar = document.getElementById(`progress-bar-${taskId}`);
+
+        if (subtasks.length > 0) {
+            const progress = (completedSubtasks.length / subtasks.length) * 100;
+            taskProgressBar.style.width = `${progress}%`;
+
+            // If all subtasks are done, mark the task as done
+            if (completedSubtasks.length === subtasks.length) {
+                taskItem.querySelector(".task-title").classList.add("task-done");
+            }
+        } else {
+            taskProgressBar.style.width = "0%";
+        }
     }
 
     // Function to remove a task
     function removeTask(taskId) {
         const taskItem = document.getElementById(taskId);
         taskItem.classList.add("fadeOut");
-        
+        const taskText = taskItem.querySelector(".task-title").textContent;
         setTimeout(() => taskItem.remove(), 500);
         updateProgress();
+        logAction(`Deleted task: ${taskText}`);
     }
 
     // Function to view history
@@ -259,17 +315,47 @@
                 btn.style.backgroundColor = "#5bc0de"; // Blue
                 btn.style.borderColor = "#5bc0de";
             });
+        } else if (selectedScheme === "green") {
+            document.body.style.backgroundColor = "#e9f7ef"; // Light green
+            document.body.style.color = "#155724"; // Dark green text
+            document.querySelectorAll(".btn-primary, .btn-success, .btn-danger").forEach(btn => {
+                btn.style.backgroundColor = "#28a745"; // Green buttons
+                btn.style.borderColor = "#28a745";
+            });
+        } else if (selectedScheme === "purple") {
+            document.body.style.backgroundColor = "#f3e5f5"; // Lavender
+            document.body.style.color = "#4a148c"; // Dark purple text
+            document.querySelectorAll(".btn-primary, .btn-success, .btn-danger").forEach(btn => {
+                btn.style.backgroundColor = "#6f42c1"; // Purple buttons
+                btn.style.borderColor = "#6f42c1";
+            });
         }
     }
 
-    // Function to update progress bar
+    // Function to update overall progress bar
     function updateProgress() {
-        const tasks = document.querySelectorAll("#task-list li");
-        const completedTasks = document.querySelectorAll(".task-done");
-        const progress = tasks.length > 0 ? (completedTasks.length / tasks.length) * 100 : 0;
+        let totalTasks = 0;
+        let completedTasks = 0;
+
+        const tasks = document.querySelectorAll("#task-list > li");
+        tasks.forEach(task => {
+            totalTasks++; // Counting the main task
+            const taskTitle = task.querySelector(".task-title");
+            if (taskTitle.classList.contains("task-done")) {
+                completedTasks++;
+            }
+
+            const subtasks = task.querySelectorAll(".subtask-item");
+            totalTasks += subtasks.length;
+            const completedSubtasks = task.querySelectorAll(".subtask-item .task-done");
+            completedTasks += completedSubtasks.length;
+        });
+
+        const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
         document.getElementById("progress-bar").style.width = `${progress}%`;
     }
 </script>
 
 </body>
 </html>
+
