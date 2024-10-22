@@ -281,19 +281,11 @@
         const taskTitle = taskItem.querySelector(".task-title");
         const isDone = taskTitle.classList.toggle("task-done");
 
-        // Mark all subtasks as done
-        const subtasks = taskItem.querySelectorAll(".subtask-item span");
-        subtasks.forEach(subtask => {
-            subtask.classList.toggle("task-done", isDone);
-            const doneButton = subtask.parentElement.querySelector("button");
-            if (doneButton) doneButton.remove();
-        });
+        // Update the 'Done' button text
+        const doneButton = taskItem.querySelector("button[onclick^='markDone']");
+        doneButton.textContent = isDone ? 'Undo' : 'Done';
 
-        // Update progress circle for the task
-        const circle = document.getElementById(`circle-progress-${taskId}`);
-        const circumference = 2 * Math.PI * 18;
-        circle.style.strokeDashoffset = isDone ? 0 : circumference;
-
+        updateSubtaskProgress(taskId);
         updateProgress();
         logAction(`Marked task "${taskTitle.textContent}" as ${isDone ? 'done' : 'not done'}`);
     }
@@ -301,11 +293,15 @@
     // Function to mark a subtask as done
     function markSubtaskDone(button, taskId) {
         const subtaskItem = button.parentElement;
-        subtaskItem.querySelector("span").classList.toggle("task-done");
-        button.remove();
+        const subtaskText = subtaskItem.querySelector("span");
+        const isDone = subtaskText.classList.toggle("task-done");
+
+        // Update button text
+        button.textContent = isDone ? 'Undo' : 'Done';
+
         updateSubtaskProgress(taskId);
         updateProgress();
-        logAction(`Completed subtask: ${subtaskItem.textContent.trim()}`);
+        logAction(`Marked subtask "${subtaskText.textContent.trim()}" as ${isDone ? 'done' : 'not done'}`);
     }
 
     // Update progress for individual task based on subtasks
@@ -321,11 +317,16 @@
             const offset = circumference - (progress / 100) * circumference;
             circle.style.strokeDashoffset = offset;
 
-            // If all subtasks are done, mark the task as done
+            // Update task's 'Done' status based on subtasks
+            const taskTitle = taskItem.querySelector(".task-title");
             if (completedSubtasks.length === subtasks.length) {
-                taskItem.querySelector(".task-title").classList.add("task-done");
+                taskTitle.classList.add("task-done");
+            } else {
+                taskTitle.classList.remove("task-done");
             }
+
         } else {
+            // No subtasks, so circle is empty
             circle.style.strokeDashoffset = circumference;
         }
     }
@@ -424,3 +425,4 @@
 
 </body>
 </html>
+
