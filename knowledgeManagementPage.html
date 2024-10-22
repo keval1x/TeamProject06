@@ -4,25 +4,189 @@
     <title>Knowledge Management</title>
     <!--using cdn to use the bootstrap framework -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <style>
+        body {
+            background-color: #f0f4f8; /* Pale blue background */
+            color: #000;
+            font-family: Arial, sans-serif;
+        }
+        #tech-p{
+            display:none;
+            margin-top: 10px;
+        }
+        #non-tech-p{
+            display:none;
+            margin-top:10px
+        }
+        .sidebar {
+            background-color: #333;
+            color: white;
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding-top: 20px;
+            padding-left: 20px;
+        }
+        .sidebar h5 {
+            color: #1f77b4; /* Pale blue */
+        }
+        .container {
+            margin-left: 270px;
+            margin-top: 30px;
+        }
+        select {
+            width: 200px !important;
+        }
+    </style>
 </head>
 
-<body class="bg-secondary">
-<div id ="header" class="text-center py-4 bg-secondary text-white fw-bold">
-    <h1>Knowledge Management</h1>
-    <p>Use this page to further your knowledge</p>
+<body>
+
+<div class="sidebar">
+    <h5>Menu</h5>
+    <ul class="list-group">
+        <li class="list-group-item bg-dark text-light" onclick="openSettings()">Settings</li>
+    </ul>
 </div>
-<!--content will automatically resize to fit window -->
-<div id="category-selection" class="container-fluid text-center">
-    <h2 class="text-white">Select Technical or Non-Technical Knowledge</h2>
+
+<div class="container">
+    <h1 class="text-center mb-4" style="color:#333;">Knowledge Management</h1>
+
+    <!--content will automatically resize to fit window -->
+   <div class="d-grid gap-2 col-6 mx-auto">
+        <button class="btn btn-primary" type="button" id="tech" onclick="techInfo()">Technical Knowledge</button>
+        <button class="btn btn-primary" type="button" id="non-tech" onclick="nonTechInfo()">Non-Technical Knowledge</button>
+    </div>
     <br>
-    <!--using bootstrap grid to divide page into two sections -->
-    <div class="row">
-        <div class="col">
-            <button onclick="window.location.href = 'technical-info.html';">Technical Info</button>
-        </div>
-        <div class="col">
-            <button onclick="window.location.href = 'non-technical-info.html';">Non-Technical Info</button>
-        </div>
+    <br>
+    <div id="tech-p">
+        <h3>Technical Knowledge</h3>
+        <br>
+        <h5>Software Configurations</h5>
+        <ul>
+            <li><strong>Operating System Settings:</strong> Understanding how to configure settings for performance, security, and compatibility (e.g., Windows vs. Linux environments).</li>
+            <li><strong>Software Installation and Setup:</strong> Experience in properly installing and configuring applications to work with other systems and avoid conflicts.</li>
+            <li><strong>Version Control:</strong> Managing software versions through tools like Git, ensuring that software dependencies and updates are handled efficiently.</li>
+            <li><strong>Network Configuration:</strong> Setting up software for optimal network performance, including firewall settings, IP configurations, and network sharing protocols.</li>
+            <li><strong>Virtual Machines and Containers:</strong> Configuring virtual environments (e.g., Docker, VirtualBox) to simulate or isolate different operating systems and software environments.</li>
+        </ul>
+        <br>
+        <h5>Hardware Configurations</h5>
+        <ul>
+            <li><strong>Peripheral Setup:</strong> Knowledge of connecting and configuring external devices like printers, scanners, monitors, and external drives.</li>
+            <li><strong>BIOS/UEFI Settings:</strong> Familiarity with accessing and configuring BIOS/UEFI settings for boot sequences, hardware virtualization, and security options.</li>
+            <li><strong>Hardware Drivers:</strong> Installing and troubleshooting hardware drivers for proper functionality (e.g., GPU, sound cards, network adapters).</li>
+            <li><strong>System Upgrades:</strong> Configuring and upgrading components like RAM, SSDs, and GPUs to improve performance.</li>
+            <li><strong>Power and Cooling Management:</strong> Configuring power supply units, fans, and cooling systems for hardware longevity and performance optimization.</li>
+        </ul>
+        <br>
+        <h5>Common Technical Issues and Solutions</h5>
+        <ul>
+            <li><strong>Software Crashes:</strong> Debugging software through error logs, reinstalling faulty applications, or addressing corrupted system files to prevent crashes.</li>
+            <li><strong>Hardware Failures:</strong> Diagnosing and replacing faulty hardware components like hard drives, RAM, or GPUs through stress testing and diagnostics tools.</li>
+            <li><strong>>Network Connectivity Issues:</strong> Resolving network issues by checking router/modem configurations, resetting IP addresses, or troubleshooting DNS settings.</li>
+            <li><strong>Slow Performance:</strong> Solving performance issues through system clean-up, memory management, closing unnecessary background processes, and updating drivers.</li>
+            <li><strong>Security Vulnerabilities:</strong> Addressing malware and security vulnerabilities by running antivirus programs, updating software, and configuring firewalls or other security settings.</li>
+        </ul>
+        <br>
+        <h5>Problem-Solving Techniques</h5>
+        <ul>
+            <li><strong>Root Cause Analysis:</strong> Identifying and analyzing the root causes of technical issues through step-by-step troubleshooting and system diagnostics.</li>
+            <li><strong>System Monitoring Tools:</strong> Utilizing tools like Task Manager, Resource Monitor, or third-party software to monitor system performance and identify bottlenecks.</li>
+            <li><strong>Rollback and Recovery:</strong> Implementing rollback strategies such as system restore points or backup images to recover from critical failures.</li>
+            <li><strong>Documentation and Procedures:</strong> Following documented procedures and best practices to avoid configuration errors and system misconfigurations.</li>
+        </ul>
+
+    </div>
+
+    <div id="non-tech-p">
+        <p>example text</p>
+    </div>
+
+    <!-- Settings (Initially Hidden) -->
+    <div id="settings-section" style="display:none;">
+        <h5>Settings</h5>
+        <label for="font-select">Select Font:</label>
+        <select id="font-select" class="form-control" onchange="changeFont()">
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+        </select>
+        
+        <label for="color-select" class="mt-3">Select Color Scheme:</label>
+        <select id="color-select" class="form-control" onchange="changeColorScheme()">
+            <option value="default">Grey, Black, Pale Blue</option>
+            <option value="dark">Black, Dark Grey, Red</option>
+            <option value="light">White, Grey, Blue</option>
+        </select>
+    </div>
+ 
+</div>
+<!-- Bootstrap JS and jQuery (needed for Bootstrap JS components) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+//Display text from the buttons
+    function techInfo(){
+        document.getElementById('tech').addEventListener("click", function(){
+            document.getElementById("tech-p").style.display = "block";
+        });
+    }
+
+    function nonTechInfo(){
+        document.getElementById('non-tech').addEvenetListener("click", function(){
+            document.getElementById("non-tech-p").style.display = "block";
+        });
+    }
+// Function to open settings
+function openSettings() {
+    document.getElementById("settings-section").style.display = 'block';
+    document.getElementById("history-section").style.display = 'none';
+}
+
+// Function to change font
+function changeFont() {
+    const selectedFont = document.getElementById("font-select").value;
+    document.body.style.fontFamily = selectedFont;
+}
+
+// Function to change color scheme
+function changeColorScheme() {
+    const selectedScheme = document.getElementById("color-select").value;
+
+    if (selectedScheme === "default") {
+        document.body.style.backgroundColor = "#f0f4f8"; // Pale blue
+        document.body.style.color = "#000";
+        document.querySelectorAll(".btn-primary, .btn-success, .btn-danger").forEach(btn => {
+            btn.style.backgroundColor = "#1f77b4"; // Pale blue buttons
+            btn.style.borderColor = "#1f77b4";
+        });
+    } else if (selectedScheme === "dark") {
+        document.body.style.backgroundColor = "#000"; // Black
+        document.body.style.color = "#fff";
+        document.querySelectorAll(".btn-primary, .btn-success, .btn-danger").forEach(btn => {
+            btn.style.backgroundColor = "#d9534f"; // Red
+            btn.style.borderColor = "#d9534f";
+        });
+    } else if (selectedScheme === "light") {
+        document.body.style.backgroundColor = "#fff"; // White
+        document.body.style.color = "#000";
+        document.querySelectorAll(".btn-primary, .btn-success, .btn-danger").forEach(btn => {
+            btn.style.backgroundColor = "#5bc0de"; // Blue
+            btn.style.borderColor = "#5bc0de";
+        });
+    }
+}
+</script>
+</body>
+
+
+</html>
             
 </div>
 </body>
