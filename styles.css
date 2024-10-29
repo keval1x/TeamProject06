@@ -82,3 +82,22 @@ body {
     padding: 5px 10px;
     cursor: pointer;
 }
+
+/* Additional styles for nested subtasks */
+.subtask {
+    margin-left: 20px;
+}
+
+.done-button,
+.edit-button,
+.delete-button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.edit-input {
+    margin-right: 10px;
+    width: 60%;
+}
+
