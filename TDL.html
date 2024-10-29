@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <ul>
+            <li><a href="#">To-Do List</a></li>
+            <li><a href="#">History Log</a></li>
+            <li><a href="#">Design</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header with Progress Bar and User Info -->
+        <div class="header">
+            <div class="progress-container">
+                <label for="overallProgress">Overall Progress:</label>
+                <div class="progress">
+                    <div id="overallProgress" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="user-info">
+                <span id="username">User</span> | <span id="role">Manager</span>
+            </div>
+        </div>
+
+        <!-- To-Do List Section -->
+        <div class="todo-container">
+            <h1>To-Do List</h1>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Add new task" id="taskInput">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" id="addTaskButton">Add Task</button>
+                </div>
+            </div>
+            <ul class="list-group" id="tasks"></ul>
+        </div>
+
+        <!-- History Log Section -->
+        <div class="history-log">
+            <h2>History Log</h2>
+            <ul id="history"></ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

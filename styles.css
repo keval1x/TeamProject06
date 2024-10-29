@@ -1,0 +1,66 @@
+/* Layout and styling */
+body {
+    display: flex;
+    font-family: Arial, sans-serif;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #343a40;
+    color: white;
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+}
+
+.sidebar h2 {
+    color: #f8f9fa;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li a {
+    color: #f8f9fa;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+}
+
+.sidebar ul li a:hover {
+    background-color: #495057;
+}
+
+.main-content {
+    margin-left: 220px;
+    padding: 20px;
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.progress-container {
+    width: 70%;
+}
+
+.user-info {
+    font-size: 18px;
+}
+
+.history-log {
+    margin-top: 20px;
+}
+
+.list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
