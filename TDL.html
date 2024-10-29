@@ -8,13 +8,13 @@
     <link href="styles.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Sidebar -->
+    <!-- Sidebar for navigation -->
     <div class="sidebar">
         <h2>Menu</h2>
         <ul>
-            <li><a href="#">To-Do List</a></li>
-            <li><a href="#">History Log</a></li>
-            <li><a href="#">Design</a></li>
+            <li><a href="#" onclick="showSection('todo-container')">To-Do List</a></li>
+            <li><a href="#" onclick="showSection('history-log')">History Log</a></li>
+            <li><a href="#" onclick="showSection('design')">Design</a></li>
         </ul>
     </div>
 
@@ -34,7 +34,7 @@
         </div>
 
         <!-- To-Do List Section -->
-        <div class="todo-container">
+        <div id="todo-container" class="content-section">
             <h1>To-Do List</h1>
             <div class="input-group mb-3">
                 <input type="text" class="form-control" placeholder="Add new task" id="taskInput">
@@ -46,13 +46,20 @@
         </div>
 
         <!-- History Log Section -->
-        <div class="history-log">
+        <div id="history-log" class="content-section" style="display: none;">
             <h2>History Log</h2>
             <ul id="history"></ul>
+        </div>
+
+        <!-- Design Section -->
+        <div id="design" class="content-section" style="display: none;">
+            <h2>Design Section</h2>
+            <p>This section is reserved for design content.</p>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
 </html>
+
 
