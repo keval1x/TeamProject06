@@ -7,6 +7,31 @@
     flex: 1;
 }
 
+/* Task Item Styles */
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.task-item input[type="text"] {
+    border: none;
+    background: transparent;
+    flex: 1;
+    margin-right: 10px;
+}
+
+.task-item input[type="text"]:focus {
+    outline: none;
+}
+
+.task-buttons .btn {
+    margin-left: 5px;
+}
+
 /* Dark Theme */
 body.dark-theme {
     background-color: #343a40;
@@ -20,6 +45,11 @@ body.dark-theme .bg-light {
 body.dark-theme .list-group-item {
     background-color: #454d55 !important;
     color: #fff;
+}
+
+body.dark-theme .task-item {
+    background-color: #454d55;
+    border-color: #545b62;
 }
 
 /* Light Theme */
