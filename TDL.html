@@ -5,46 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do List</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="sidebar">
-        <button onclick="showSection('todo')">To-Do List</button>
-        <button onclick="showSection('history')">History Log</button>
-        <button onclick="showSection('design')">Design</button>
-    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">
+                <button class="btn btn-primary w-100 my-2" onclick="showSection('todo')">To-Do List</button>
+                <button class="btn btn-primary w-100 my-2" onclick="showSection('history')">History Log</button>
+                <button class="btn btn-primary w-100 my-2" onclick="showSection('design')">Design</button>
+            </nav>
+            
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div id="todo" class="section">
+                    <h2>To-Do List</h2>
+                    <!-- Task list and progress bar here -->
+                    <div id="task-list"></div>
+                    <div class="progress">
+                        <div class="progress-bar" id="overall-progress" role="progressbar" style="width: 0;"></div>
+                    </div>
+                </div>
 
-    <div class="content">
-        <!-- To-Do List Section -->
-        <div id="todo" class="section">
-            <h2>To-Do List</h2>
-            <div id="taskList"></div>
-            <button onclick="addTask()">Add Task</button>
-            <div class="progress-bar">
-                <div class="progress" id="progress"></div>
-            </div>
-        </div>
+                <div id="history" class="section" style="display:none;">
+                    <h2>History Log</h2>
+                    <ul id="history-log"></ul>
+                </div>
 
-        <!-- History Log Section -->
-        <div id="history" class="section" style="display: none;">
-            <h2>History Log</h2>
-            <ul id="historyLog"></ul>
-        </div>
-
-        <!-- Design Section -->
-        <div id="design" class="section" style="display: none;">
-            <h2>Design</h2>
-            <label for="colorScheme">Change Color Scheme:</label>
-            <input type="color" id="colorScheme" onchange="changeColorScheme()">
-            <br>
-            <label for="fontStyle">Change Font Style:</label>
-            <select id="fontStyle" onchange="changeFontStyle()">
-                <option value="Arial">Arial</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-            </select>
+                <div id="design" class="section" style="display:none;">
+                    <h2>Design</h2>
+                    <button onclick="changeTheme('dark')">Dark Theme</button>
+                    <button onclick="changeTheme('light')">Light Theme</button>
+                    <button onclick="changeFont('Arial')">Arial</button>
+                    <button onclick="changeFont('Courier')">Courier</button>
+                </div>
+            </main>
         </div>
     </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
+
 
