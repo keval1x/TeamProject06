@@ -5,8 +5,19 @@ document.addEventListener("DOMContentLoaded", function() {
     const historyLog = document.getElementById("history");
     const overallProgress = document.getElementById("overallProgress");
 
+    const username = "Alice";  // Example username, can be dynamic
+    const role = "Manager";    // Or "Employee", set this dynamically
+    document.getElementById("username").innerText = username;
+    document.getElementById("role").innerText = role;
+
     let tasks = [];
     let history = [];
+
+    function showSection(sectionId) {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.style.display = section.id === sectionId ? 'block' : 'none';
+        });
+    }
 
     function updateHistory(action) {
         history.unshift(action);
@@ -37,12 +48,34 @@ document.addEventListener("DOMContentLoaded", function() {
         updateHistory(`Deleted task: "${task.text}"`);
     }
 
+    function toggleTaskCompletion(index) {
+        tasks[index].completed = !tasks[index].completed;
+        renderTasks();
+        updateHistory(`Marked task "${tasks[index].text}" as ${tasks[index].completed ? "Done" : "Not Done"}`);
+    }
+
+    function addSubtask(taskIndex, subtaskText) {
+        const subtask = { text: subtaskText, completed: false };
+        tasks[taskIndex].subtasks.push(subtask);
+        renderTasks();
+        updateHistory(`Added subtask: "${subtaskText}" to task "${tasks[taskIndex].text}"`);
+    }
+
+    function toggleSubtask(taskIndex, subtaskIndex) {
+        const subtask = tasks[taskIndex].subtasks[subtaskIndex];
+        subtask.completed = !subtask.completed;
+        renderTasks();
+        updateHistory(`Marked subtask "${subtask.text}" as ${subtask.completed ? "Done" : "Not Done"}`);
+    }
+
     function renderTasks() {
         tasksList.innerHTML = tasks.map((task, index) => {
             const subtasksHTML = task.subtasks.map((subtask, subIndex) => `
                 <li>
-                    <input type="checkbox" ${subtask.completed ? 'checked' : ''} 
-                        onclick="toggleSubtask(${index}, ${subIndex})"> ${subtask.text}
+                    ${subtask.text}
+                    <button class="done-button" onclick="toggleSubtask(${index}, ${subIndex})">
+                        ${subtask.completed ? "Undo" : "Done"}
+                    </button>
                 </li>
             `).join('');
             
@@ -53,12 +86,16 @@ document.addEventListener("DOMContentLoaded", function() {
             return `
                 <li class="list-group-item">
                     <span>${task.text}</span>
+                    <button class="done-button" onclick="toggleTaskCompletion(${index})">
+                        ${task.completed ? "Undo" : "Done"}
+                    </button>
                     <button onclick="deleteTask(${index})">Delete</button>
                     <div class="progress">
                         <div class="progress-bar" role="progressbar" style="width: ${taskProgress}%"></div>
                     </div>
                     <ul>${subtasksHTML}</ul>
-                    <input type="text" placeholder="Add subtask">
+                    <input type="text" placeholder="Add subtask" 
+                           onkeydown="if(event.key === 'Enter') addSubtask(${index}, this.value)">
                 </li>
             `;
         }).join('');
@@ -74,5 +111,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     window.deleteTask = deleteTask;
+    window.toggleTaskCompletion = toggleTaskCompletion;
+    window.addSubtask = addSubtask;
 });
+
 
