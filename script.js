@@ -1,3 +1,16 @@
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.style.display = section.id === sectionId ? 'block' : 'none';
+    });
+}
+
+// Attach showSection to the global window object
+window.showSection = showSection;
+
+
+
+
+
 document.addEventListener("DOMContentLoaded", function() {
     const taskInput = document.getElementById("taskInput");
     const addTaskButton = document.getElementById("addTaskButton");
@@ -60,6 +73,7 @@ document.addEventListener("DOMContentLoaded", function() {
         renderTasks();
         updateHistory(`Added subtask: "${subtaskText}" to task "${tasks[taskIndex].text}"`);
     }
+    
 
     function toggleSubtask(taskIndex, subtaskIndex) {
         const subtask = tasks[taskIndex].subtasks[subtaskIndex];
