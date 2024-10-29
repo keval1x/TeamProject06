@@ -50,32 +50,46 @@ document.addEventListener("DOMContentLoaded", function() {
         updateHistory(`Marked task "${tasks[index].text}" as ${tasks[index].completed ? "Done" : "Not Done"}`);
     }
 
-    function addSubtask(taskIndex, subtaskText) {
+    function addSubtask(taskIndex, subtaskText = "New Subtask") {
         const subtask = { text: subtaskText, completed: false };
         tasks[taskIndex].subtasks.push(subtask);
         renderTasks();
         updateHistory(`Added subtask: "${subtaskText}" to task "${tasks[taskIndex].text}"`);
     }
 
+    function editTask(taskIndex) {
+        const newTaskText = prompt("Edit Task:", tasks[taskIndex].text);
+        if (newTaskText) {
+            tasks[taskIndex].text = newTaskText;
+            renderTasks();
+            updateHistory(`Edited task: "${newTaskText}"`);
+        }
+    }
+
     function renderTasks() {
         tasksList.innerHTML = tasks.map((task, index) => {
             const subtasksHTML = task.subtasks.map((subtask, subIndex) => `
                 <li class="subtask">
-                    ${subtask.text}
-                    <button class="done-button" onclick="toggleSubtask(${index}, ${subIndex})">
-                        ${subtask.completed ? "Undo" : "Done"}
-                    </button>
+                    <div style="display: flex; align-items: center;">
+                        <button class="done-button" onclick="toggleSubtask(${index}, ${subIndex})">
+                            ${subtask.completed ? "Undo" : "Done"}
+                        </button>
+                        <span>${subtask.text}</span>
+                    </div>
                 </li>
             `).join('');
 
             return `
                 <li class="list-group-item">
-                    <span>${task.text}</span>
-                    <button class="done-button" onclick="toggleTaskCompletion(${index})">
-                        ${task.completed ? "Undo" : "Done"}
-                    </button>
-                    <button class="edit-button" onclick="editTask(${index})">Edit</button>
-                    <button class="delete-button" onclick="deleteTask(${index})">Delete</button>
+                    <div style="display: flex; align-items: center;">
+                        <button class="done-button" onclick="toggleTaskCompletion(${index})">
+                            ${task.completed ? "Undo" : "Done"}
+                        </button>
+                        <button class="edit-button" onclick="editTask(${index})">Edit</button>
+                        <button class="delete-button" onclick="deleteTask(${index})">Delete</button>
+                        <button class="add-subtask-button" onclick="addSubtask(${index})">Add Subtask</button>
+                        <span style="margin-left: 10px;">${task.text}</span>
+                    </div>
                     <ul>${subtasksHTML}</ul>
                 </li>
             `;
