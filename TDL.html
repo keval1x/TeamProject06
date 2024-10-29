@@ -4,63 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do List</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
-    <!-- Sidebar for navigation -->
     <div class="sidebar">
-        <h2>Menu</h2>
-        <ul>
-            <li><a href="#" onclick="showSection('todo-container')">To-Do List</a></li>
-            <li><a href="#" onclick="showSection('history-log')">History Log</a></li>
-            <li><a href="#" onclick="showSection('design')">Design</a></li>
-        </ul>
+        <button onclick="showSection('todo')">To-Do List</button>
+        <button onclick="showSection('history')">History Log</button>
+        <button onclick="showSection('design')">Design</button>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header with Progress Bar and User Info -->
-        <div class="header">
-            <div class="progress-container">
-                <label for="overallProgress">Overall Progress:</label>
-                <div class="progress">
-                    <div id="overallProgress" class="progress-bar" role="progressbar" style="width: 0%;"></div>
-                </div>
-            </div>
-            <div class="user-info">
-                <span id="username">User</span> | <span id="role">Manager</span>
-            </div>
-        </div>
-
+    <div class="content">
         <!-- To-Do List Section -->
-        <div id="todo-container" class="content-section active">
-            <h1>To-Do List</h1>
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Add new task" id="taskInput">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" id="addTaskButton">Add Task</button>
-                </div>
+        <div id="todo" class="section">
+            <h2>To-Do List</h2>
+            <div id="taskList"></div>
+            <button onclick="addTask()">Add Task</button>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
             </div>
-            <ul class="list-group" id="tasks"></ul>
         </div>
 
         <!-- History Log Section -->
-        <div id="history-log" class="content-section" style="display: none;">
+        <div id="history" class="section" style="display: none;">
             <h2>History Log</h2>
-            <ul id="history"></ul>
+            <ul id="historyLog"></ul>
         </div>
 
         <!-- Design Section -->
-        <div id="design" class="content-section" style="display: none;">
-            <h2>Design Section</h2>
-            <p>This section is reserved for design content.</p>
+        <div id="design" class="section" style="display: none;">
+            <h2>Design</h2>
+            <label for="colorScheme">Change Color Scheme:</label>
+            <input type="color" id="colorScheme" onchange="changeColorScheme()">
+            <br>
+            <label for="fontStyle">Change Font Style:</label>
+            <select id="fontStyle" onchange="changeFontStyle()">
+                <option value="Arial">Arial</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+            </select>
         </div>
     </div>
-
-    <!-- Updated JavaScript file reference -->
-    <script src="script.js"></script>
 </body>
 </html>
-
 
