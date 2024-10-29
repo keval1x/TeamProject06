@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Subtasks
             if (task.subtasks.length > 0) {
                 const subtaskList = document.createElement('div');
-                subtaskList.classList.add('subtask-list', 'ml-4', 'mt-2');
+                subtaskList.classList.add('subtask-list');
 
                 task.subtasks.forEach((subtask, subtaskIndex) => {
                     const subtaskDiv = document.createElement('div');
@@ -207,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkTaskCompletion(task) {
         if (task.subtasks.length > 0) {
             task.completed = task.subtasks.every(subtask => subtask.completed);
+            addToHistory(`Task ${task.completed ? 'completed' : 'uncompleted'} automatically due to subtasks`);
             renderTasks();
             updateProgress();
         }
@@ -219,6 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const progressPercentage = totalItems === 0 ? 0 : (completedItems / totalItems) * 100;
         progressBar.style.width = `${progressPercentage}%`;
+        progressBar.setAttribute('aria-valuenow', progressPercentage);
+        progressBar.textContent = `${Math.round(progressPercentage)}%`;
     }
 
     // Add to History Log
@@ -259,4 +262,5 @@ document.addEventListener('DOMContentLoaded', () => {
         addToHistory(`Changed font to ${fontSelect.options[fontSelect.selectedIndex].text}`);
     });
 });
+
 
