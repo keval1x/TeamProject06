@@ -43,90 +43,63 @@ document.addEventListener('DOMContentLoaded', () => {
         todoList.innerHTML = '';
         tasks.forEach((task, taskIndex) => {
             const taskDiv = document.createElement('div');
-            taskDiv.classList.add('card', 'mb-2');
+            taskDiv.classList.add('task-item');
 
-            const taskHeader = document.createElement('div');
-            taskHeader.classList.add('card-header', 'd-flex', 'justify-content-between', 'align-items-center');
-
+            // Task Title
             const taskTitle = document.createElement('input');
             taskTitle.type = 'text';
             taskTitle.value = task.title;
-            taskTitle.classList.add('form-control', 'mr-2');
-            taskTitle.addEventListener('change', () => {
-                task.title = taskTitle.value;
-                addToHistory(`Edited task: ${task.title}`);
+            taskTitle.readOnly = true;
+            taskTitle.classList.add('task-title');
+            taskTitle.style.textDecoration = task.completed ? 'line-through' : 'none';
+
+            // Buttons Container
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.classList.add('task-buttons');
+
+            // Edit Button
+            const editBtn = document.createElement('button');
+            editBtn.classList.add('btn', 'btn-sm', 'btn-secondary');
+            editBtn.textContent = 'Edit';
+            editBtn.addEventListener('click', () => {
+                if (taskTitle.readOnly) {
+                    taskTitle.readOnly = false;
+                    taskTitle.focus();
+                    editBtn.textContent = 'Save';
+                } else {
+                    taskTitle.readOnly = true;
+                    task.title = taskTitle.value;
+                    editBtn.textContent = 'Edit';
+                    addToHistory(`Edited task: ${task.title}`);
+                }
             });
 
-            const taskCheckbox = document.createElement('input');
-            taskCheckbox.type = 'checkbox';
-            taskCheckbox.checked = task.completed;
-            taskCheckbox.classList.add('mr-2');
-            taskCheckbox.addEventListener('change', () => {
-                task.completed = taskCheckbox.checked;
-                addToHistory(`Task ${task.completed ? 'completed' : 'uncompleted'}: ${task.title}`);
-                updateProgress();
-            });
-
-            const removeTaskBtn = document.createElement('button');
-            removeTaskBtn.classList.add('btn', 'btn-danger', 'btn-sm');
-            removeTaskBtn.textContent = 'Remove';
-            removeTaskBtn.addEventListener('click', () => {
+            // Delete Button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.classList.add('btn', 'btn-sm', 'btn-danger');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.addEventListener('click', () => {
                 tasks.splice(taskIndex, 1);
-                addToHistory(`Removed task: ${task.title}`);
+                addToHistory(`Deleted task: ${task.title}`);
                 renderTasks();
                 updateProgress();
             });
 
-            taskHeader.appendChild(taskCheckbox);
-            taskHeader.appendChild(taskTitle);
-            taskHeader.appendChild(removeTaskBtn);
-
-            // Subtasks
-            const subtaskList = document.createElement('ul');
-            subtaskList.classList.add('list-group', 'list-group-flush');
-
-            task.subtasks.forEach((subtask, subtaskIndex) => {
-                const subtaskItem = document.createElement('li');
-                subtaskItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
-
-                const subtaskTitle = document.createElement('input');
-                subtaskTitle.type = 'text';
-                subtaskTitle.value = subtask.title;
-                subtaskTitle.classList.add('form-control', 'mr-2');
-                subtaskTitle.addEventListener('change', () => {
-                    subtask.title = subtaskTitle.value;
-                    addToHistory(`Edited subtask: ${subtask.title}`);
-                });
-
-                const subtaskCheckbox = document.createElement('input');
-                subtaskCheckbox.type = 'checkbox';
-                subtaskCheckbox.checked = subtask.completed;
-                subtaskCheckbox.classList.add('mr-2');
-                subtaskCheckbox.addEventListener('change', () => {
-                    subtask.completed = subtaskCheckbox.checked;
-                    addToHistory(`Subtask ${subtask.completed ? 'completed' : 'uncompleted'}: ${subtask.title}`);
-                    checkTaskCompletion(task);
-                    updateProgress();
-                });
-
-                const removeSubtaskBtn = document.createElement('button');
-                removeSubtaskBtn.classList.add('btn', 'btn-danger', 'btn-sm');
-                removeSubtaskBtn.textContent = 'Remove';
-                removeSubtaskBtn.addEventListener('click', () => {
-                    task.subtasks.splice(subtaskIndex, 1);
-                    addToHistory(`Removed subtask: ${subtask.title}`);
-                    renderTasks();
-                    updateProgress();
-                });
-
-                subtaskItem.appendChild(subtaskCheckbox);
-                subtaskItem.appendChild(subtaskTitle);
-                subtaskItem.appendChild(removeSubtaskBtn);
-                subtaskList.appendChild(subtaskItem);
+            // Complete Button
+            const completeBtn = document.createElement('button');
+            completeBtn.classList.add('btn', 'btn-sm', 'btn-success');
+            completeBtn.textContent = task.completed ? 'Undo' : 'Complete';
+            completeBtn.addEventListener('click', () => {
+                task.completed = !task.completed;
+                taskTitle.style.textDecoration = task.completed ? 'line-through' : 'none';
+                completeBtn.textContent = task.completed ? 'Undo' : 'Complete';
+                addToHistory(`Task ${task.completed ? 'completed' : 'uncompleted'}: ${task.title}`);
+                updateProgress();
             });
 
+            // Add Subtask Button
             const addSubtaskBtn = document.createElement('button');
-            addSubtaskBtn.classList.add('btn', 'btn-secondary', 'btn-sm', 'mt-2');
+            addSubtaskBtn.classList.add('btn', 'btn-sm', 'btn-primary');
             addSubtaskBtn.textContent = 'Add Subtask';
             addSubtaskBtn.addEventListener('click', () => {
                 const subtaskTitle = prompt('Enter subtask title:');
@@ -142,13 +115,90 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            const taskBody = document.createElement('div');
-            taskBody.classList.add('card-body');
-            taskBody.appendChild(subtaskList);
-            taskBody.appendChild(addSubtaskBtn);
+            // Append buttons to the buttons container
+            buttonsDiv.appendChild(editBtn);
+            buttonsDiv.appendChild(deleteBtn);
+            buttonsDiv.appendChild(completeBtn);
+            buttonsDiv.appendChild(addSubtaskBtn);
 
-            taskDiv.appendChild(taskHeader);
-            taskDiv.appendChild(taskBody);
+            // Append title and buttons to task item
+            taskDiv.appendChild(taskTitle);
+            taskDiv.appendChild(buttonsDiv);
+
+            // Subtasks
+            if (task.subtasks.length > 0) {
+                const subtaskList = document.createElement('div');
+                subtaskList.classList.add('subtask-list', 'ml-4', 'mt-2');
+
+                task.subtasks.forEach((subtask, subtaskIndex) => {
+                    const subtaskDiv = document.createElement('div');
+                    subtaskDiv.classList.add('task-item');
+
+                    const subtaskTitle = document.createElement('input');
+                    subtaskTitle.type = 'text';
+                    subtaskTitle.value = subtask.title;
+                    subtaskTitle.readOnly = true;
+                    subtaskTitle.style.textDecoration = subtask.completed ? 'line-through' : 'none';
+
+                    const subtaskButtonsDiv = document.createElement('div');
+                    subtaskButtonsDiv.classList.add('task-buttons');
+
+                    // Edit Subtask Button
+                    const editSubtaskBtn = document.createElement('button');
+                    editSubtaskBtn.classList.add('btn', 'btn-sm', 'btn-secondary');
+                    editSubtaskBtn.textContent = 'Edit';
+                    editSubtaskBtn.addEventListener('click', () => {
+                        if (subtaskTitle.readOnly) {
+                            subtaskTitle.readOnly = false;
+                            subtaskTitle.focus();
+                            editSubtaskBtn.textContent = 'Save';
+                        } else {
+                            subtaskTitle.readOnly = true;
+                            subtask.title = subtaskTitle.value;
+                            editSubtaskBtn.textContent = 'Edit';
+                            addToHistory(`Edited subtask: ${subtask.title}`);
+                        }
+                    });
+
+                    // Delete Subtask Button
+                    const deleteSubtaskBtn = document.createElement('button');
+                    deleteSubtaskBtn.classList.add('btn', 'btn-sm', 'btn-danger');
+                    deleteSubtaskBtn.textContent = 'Delete';
+                    deleteSubtaskBtn.addEventListener('click', () => {
+                        task.subtasks.splice(subtaskIndex, 1);
+                        addToHistory(`Deleted subtask: ${subtask.title}`);
+                        renderTasks();
+                        updateProgress();
+                    });
+
+                    // Complete Subtask Button
+                    const completeSubtaskBtn = document.createElement('button');
+                    completeSubtaskBtn.classList.add('btn', 'btn-sm', 'btn-success');
+                    completeSubtaskBtn.textContent = subtask.completed ? 'Undo' : 'Complete';
+                    completeSubtaskBtn.addEventListener('click', () => {
+                        subtask.completed = !subtask.completed;
+                        subtaskTitle.style.textDecoration = subtask.completed ? 'line-through' : 'none';
+                        completeSubtaskBtn.textContent = subtask.completed ? 'Undo' : 'Complete';
+                        addToHistory(`Subtask ${subtask.completed ? 'completed' : 'uncompleted'}: ${subtask.title}`);
+                        checkTaskCompletion(task);
+                        updateProgress();
+                    });
+
+                    // Append subtask buttons
+                    subtaskButtonsDiv.appendChild(editSubtaskBtn);
+                    subtaskButtonsDiv.appendChild(deleteSubtaskBtn);
+                    subtaskButtonsDiv.appendChild(completeSubtaskBtn);
+
+                    // Append subtask title and buttons
+                    subtaskDiv.appendChild(subtaskTitle);
+                    subtaskDiv.appendChild(subtaskButtonsDiv);
+
+                    subtaskList.appendChild(subtaskDiv);
+                });
+
+                taskDiv.appendChild(subtaskList);
+            }
+
             todoList.appendChild(taskDiv);
         });
     }
