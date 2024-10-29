@@ -283,4 +283,3 @@ document.addEventListener('DOMContentLoaded', () => {
         addToHistory(`Changed font to ${fontSelect.options[fontSelect.selectedIndex].text}`);
     });
 });
-
