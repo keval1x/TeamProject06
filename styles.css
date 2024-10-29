@@ -56,16 +56,43 @@ body {
 
 .list-group-item {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.list-group-item > div {
+    display: flex;
     align-items: center;
 }
 
 .done-button,
 .edit-button,
-.delete-button {
-    margin-left: 10px;
+.delete-button,
+.add-subtask-button {
+    margin-right: 5px;
     padding: 5px 10px;
     cursor: pointer;
+    border: none;
+}
+
+.done-button {
+    background-color: #28a745;
+    color: white;
+}
+
+.edit-button {
+    background-color: #ffc107;
+    color: white;
+}
+
+.delete-button {
+    background-color: #dc3545;
+    color: white;
+}
+
+.add-subtask-button {
+    background-color: #007bff;
+    color: white;
 }
 
 .progress-bar {
@@ -76,6 +103,7 @@ body {
 }
 
 .subtask {
-    margin-left: 20px;
+    margin-left: 30px;
+    margin-top: 5px;
 }
 
