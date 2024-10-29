@@ -54,38 +54,10 @@ body {
     font-size: 18px;
 }
 
-.history-log {
-    margin-top: 20px;
-}
-
 .list-group-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-/* Content sections for switching */
-.content-section {
-    display: none;
-}
-
-.content-section.active {
-    display: block;
-}
-
-/* Styling for task and subtask done buttons */
-.done-button {
-    margin-left: auto;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-/* Additional styles for nested subtasks */
-.subtask {
-    margin-left: 20px;
 }
 
 .done-button,
@@ -96,8 +68,14 @@ body {
     cursor: pointer;
 }
 
-.edit-input {
-    margin-right: 10px;
-    width: 60%;
+.progress-bar {
+    background-color: #28a745;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.subtask {
+    margin-left: 20px;
 }
 
