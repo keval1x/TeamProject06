@@ -24,18 +24,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add Task
     addTaskBtn.addEventListener('click', () => {
-        const taskTitle = prompt('Enter task title:');
-        if (taskTitle) {
-            const task = {
-                title: taskTitle,
-                completed: false,
-                subtasks: []
-            };
-            tasks.push(task);
-            addToHistory(`Added task: ${taskTitle}`);
-            renderTasks();
-            updateProgress();
-        }
+        const task = {
+            title: '',
+            completed: false,
+            subtasks: []
+        };
+        tasks.push(task);
+        renderTasks();
+        // Focus on the new task's title input
+        const taskInputs = document.querySelectorAll('.task-title');
+        const newTaskInput = taskInputs[taskInputs.length - 1];
+        newTaskInput.readOnly = false;
+        newTaskInput.focus();
+        // Change the Edit button text to 'Save'
+        const editButtons = document.querySelectorAll('.edit-task-btn');
+        const newEditBtn = editButtons[editButtons.length - 1];
+        newEditBtn.textContent = 'Save';
     });
 
     // Render Tasks
@@ -49,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const taskTitle = document.createElement('input');
             taskTitle.type = 'text';
             taskTitle.value = task.title;
-            taskTitle.readOnly = true;
+            taskTitle.readOnly = task.title !== '';
             taskTitle.classList.add('task-title');
             taskTitle.style.textDecoration = task.completed ? 'line-through' : 'none';
 
@@ -59,18 +63,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Edit Button
             const editBtn = document.createElement('button');
-            editBtn.classList.add('btn', 'btn-sm', 'btn-secondary');
-            editBtn.textContent = 'Edit';
+            editBtn.classList.add('btn', 'btn-sm', 'btn-secondary', 'edit-task-btn');
+            editBtn.textContent = task.title === '' ? 'Save' : 'Edit';
             editBtn.addEventListener('click', () => {
                 if (taskTitle.readOnly) {
                     taskTitle.readOnly = false;
                     taskTitle.focus();
                     editBtn.textContent = 'Save';
                 } else {
-                    taskTitle.readOnly = true;
-                    task.title = taskTitle.value;
-                    editBtn.textContent = 'Edit';
-                    addToHistory(`Edited task: ${task.title}`);
+                    if (taskTitle.value.trim() === '') {
+                        alert('Task title cannot be empty.');
+                        taskTitle.focus();
+                    } else {
+                        taskTitle.readOnly = true;
+                        task.title = taskTitle.value.trim();
+                        editBtn.textContent = 'Edit';
+                        addToHistory(`Edited task: ${task.title}`);
+                    }
                 }
             });
 
@@ -102,17 +111,21 @@ document.addEventListener('DOMContentLoaded', () => {
             addSubtaskBtn.classList.add('btn', 'btn-sm', 'btn-primary');
             addSubtaskBtn.textContent = 'Add Subtask';
             addSubtaskBtn.addEventListener('click', () => {
-                const subtaskTitle = prompt('Enter subtask title:');
-                if (subtaskTitle) {
-                    const subtask = {
-                        title: subtaskTitle,
-                        completed: false
-                    };
-                    task.subtasks.push(subtask);
-                    addToHistory(`Added subtask: ${subtaskTitle}`);
-                    renderTasks();
-                    updateProgress();
-                }
+                const subtask = {
+                    title: '',
+                    completed: false
+                };
+                task.subtasks.push(subtask);
+                renderTasks();
+                // Focus on the new subtask's title input
+                const subtaskInputs = todoList.querySelectorAll('.subtask-title');
+                const newSubtaskInput = subtaskInputs[subtaskInputs.length - 1];
+                newSubtaskInput.readOnly = false;
+                newSubtaskInput.focus();
+                // Change the Edit button text to 'Save'
+                const subEditButtons = todoList.querySelectorAll('.edit-subtask-btn');
+                const newSubEditBtn = subEditButtons[subEditButtons.length - 1];
+                newSubEditBtn.textContent = 'Save';
             });
 
             // Append buttons to the buttons container
@@ -137,7 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const subtaskTitle = document.createElement('input');
                     subtaskTitle.type = 'text';
                     subtaskTitle.value = subtask.title;
-                    subtaskTitle.readOnly = true;
+                    subtaskTitle.readOnly = subtask.title !== '';
+                    subtaskTitle.classList.add('subtask-title');
                     subtaskTitle.style.textDecoration = subtask.completed ? 'line-through' : 'none';
 
                     const subtaskButtonsDiv = document.createElement('div');
@@ -145,18 +159,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Edit Subtask Button
                     const editSubtaskBtn = document.createElement('button');
-                    editSubtaskBtn.classList.add('btn', 'btn-sm', 'btn-secondary');
-                    editSubtaskBtn.textContent = 'Edit';
+                    editSubtaskBtn.classList.add('btn', 'btn-sm', 'btn-secondary', 'edit-subtask-btn');
+                    editSubtaskBtn.textContent = subtask.title === '' ? 'Save' : 'Edit';
                     editSubtaskBtn.addEventListener('click', () => {
                         if (subtaskTitle.readOnly) {
                             subtaskTitle.readOnly = false;
                             subtaskTitle.focus();
                             editSubtaskBtn.textContent = 'Save';
                         } else {
-                            subtaskTitle.readOnly = true;
-                            subtask.title = subtaskTitle.value;
-                            editSubtaskBtn.textContent = 'Edit';
-                            addToHistory(`Edited subtask: ${subtask.title}`);
+                            if (subtaskTitle.value.trim() === '') {
+                                alert('Subtask title cannot be empty.');
+                                subtaskTitle.focus();
+                            } else {
+                                subtaskTitle.readOnly = true;
+                                subtask.title = subtaskTitle.value.trim();
+                                editSubtaskBtn.textContent = 'Edit';
+                                addToHistory(`Edited subtask: ${subtask.title}`);
+                            }
                         }
                     });
 
@@ -207,7 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkTaskCompletion(task) {
         if (task.subtasks.length > 0) {
             task.completed = task.subtasks.every(subtask => subtask.completed);
-            addToHistory(`Task ${task.completed ? 'completed' : 'uncompleted'} automatically due to subtasks`);
+            if (task.completed) {
+                addToHistory(`Task "${task.title}" automatically completed as all subtasks are done.`);
+            }
             renderTasks();
             updateProgress();
         }
@@ -262,5 +283,4 @@ document.addEventListener('DOMContentLoaded', () => {
         addToHistory(`Changed font to ${fontSelect.options[fontSelect.selectedIndex].text}`);
     });
 });
-
 
