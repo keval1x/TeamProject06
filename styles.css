@@ -32,6 +32,10 @@
     margin-left: 5px;
 }
 
+.subtask-list {
+    margin-left: 20px;
+}
+
 /* Dark Theme */
 body.dark-theme {
     background-color: #343a40;
@@ -52,6 +56,10 @@ body.dark-theme .task-item {
     border-color: #545b62;
 }
 
+body.dark-theme .task-item input[type="text"] {
+    color: #fff;
+}
+
 /* Light Theme */
 body.light-theme {
     background-color: #f8f9fa;
@@ -66,3 +74,13 @@ body.light-theme .list-group-item {
     background-color: #fff !important;
     color: #000;
 }
+
+body.light-theme .task-item {
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+body.light-theme .task-item input[type="text"] {
+    color: #000;
+}
+
