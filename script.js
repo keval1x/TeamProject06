@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function addSubtask(taskIndex, subtaskText) {
-        const subtask = { text: subtaskText, completed: false };
+        const subtask = { text: subtaskText, completed: false, subtasks: [] };
         tasks[taskIndex].subtasks.push(subtask);
         renderTasks();
         updateHistory(`Added subtask: "${subtaskText}" to task "${tasks[taskIndex].text}"`);
@@ -72,14 +72,38 @@ document.addEventListener("DOMContentLoaded", function() {
         updateHistory(`Marked subtask "${subtask.text}" as ${subtask.completed ? "Done" : "Not Done"}`);
     }
 
-    function renderTasks() {
-        tasksList.innerHTML = tasks.map((task, index) => {
+    function editTask(taskIndex) {
+        const task = tasks[taskIndex];
+        const newText = prompt("Edit Task:", task.text);
+        if (newText) {
+            task.text = newText;
+            renderTasks();
+            updateHistory(`Edited task: "${newText}"`);
+        }
+    }
+
+    function editSubtask(taskIndex, subtaskIndex) {
+        const subtask = tasks[taskIndex].subtasks[subtaskIndex];
+        const newText = prompt("Edit Subtask:", subtask.text);
+        if (newText) {
+            subtask.text = newText;
+            renderTasks();
+            updateHistory(`Edited subtask: "${newText}"`);
+        }
+    }
+
+    function renderTasks(taskList = tasks, indentLevel = 0) {
+        tasksList.innerHTML = taskList.map((task, index) => {
             const subtasksHTML = task.subtasks.map((subtask, subIndex) => `
-                <li>
+                <li class="subtask" style="margin-left: ${20 * indentLevel}px;">
                     ${subtask.text}
                     <button class="done-button" onclick="toggleSubtask(${index}, ${subIndex})">
                         ${subtask.completed ? "Undo" : "Done"}
                     </button>
+                    <button class="edit-button" onclick="editSubtask(${index}, ${subIndex})">Edit</button>
+                    <button class="delete-button" onclick="deleteSubtask(${index}, ${subIndex})">Delete</button>
+                    <button class="add-subtask" onclick="addSubtask(${index}, '')">Add Subtask</button>
+                    ${renderTasks(subtask.subtasks, indentLevel + 1)}
                 </li>
             `).join('');
             
@@ -93,13 +117,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     <button class="done-button" onclick="toggleTaskCompletion(${index})">
                         ${task.completed ? "Undo" : "Done"}
                     </button>
-                    <button onclick="deleteTask(${index})">Delete</button>
+                    <button class="edit-button" onclick="editTask(${index})">Edit</button>
+                    <button class="delete-button" onclick="deleteTask(${index})">Delete</button>
+                    <button class="add-subtask" onclick="addSubtask(${index}, '')">Add Subtask</button>
                     <div class="progress">
                         <div class="progress-bar" role="progressbar" style="width: ${taskProgress}%"></div>
                     </div>
                     <ul>${subtasksHTML}</ul>
-                    <input type="text" placeholder="Add subtask" 
-                           onkeydown="if(event.key === 'Enter') addSubtask(${index}, this.value)">
                 </li>
             `;
         }).join('');
@@ -117,5 +141,8 @@ document.addEventListener("DOMContentLoaded", function() {
     window.deleteTask = deleteTask;
     window.toggleTaskCompletion = toggleTaskCompletion;
     window.addSubtask = addSubtask;
+    window.editTask = editTask;
+    window.editSubtask = editSubtask;
 });
+
 
