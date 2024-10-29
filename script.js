@@ -70,10 +70,7 @@ document.addEventListener("DOMContentLoaded", function() {
         tasksList.innerHTML = tasks.map((task, index) => {
             const subtasksHTML = task.subtasks.map((subtask, subIndex) => `
                 <li class="subtask">
-                    <div style="display: flex; align-items: center;">
-                        <button class="done-button" onclick="toggleSubtask(${index}, ${subIndex})">
-                            ${subtask.completed ? "Undo" : "Done"}
-                        </button>
+                    <div class="subtask-content">
                         <span>${subtask.text}</span>
                     </div>
                 </li>
@@ -81,14 +78,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
             return `
                 <li class="list-group-item">
-                    <div style="display: flex; align-items: center;">
-                        <button class="done-button" onclick="toggleTaskCompletion(${index})">
-                            ${task.completed ? "Undo" : "Done"}
-                        </button>
-                        <button class="edit-button" onclick="editTask(${index})">Edit</button>
-                        <button class="delete-button" onclick="deleteTask(${index})">Delete</button>
-                        <button class="add-subtask-button" onclick="addSubtask(${index})">Add Subtask</button>
-                        <span style="margin-left: 10px;">${task.text}</span>
+                    <div class="task-content">
+                        <span class="task-text">${task.text}</span>
+                        <div class="task-buttons">
+                            <button class="add-subtask-button" onclick="addSubtask(${index})">Add Subtask</button>
+                            <button class="edit-button" onclick="editTask(${index})">Edit</button>
+                            <button class="done-button" onclick="toggleTaskCompletion(${index})">
+                                ${task.completed ? "Undo" : "Done"}
+                            </button>
+                            <button class="delete-button" onclick="deleteTask(${index})">Delete</button>
+                        </div>
                     </div>
                     <ul>${subtasksHTML}</ul>
                 </li>
@@ -109,4 +108,3 @@ document.addEventListener("DOMContentLoaded", function() {
     window.toggleTaskCompletion = toggleTaskCompletion;
     window.addSubtask = addSubtask;
 });
-
