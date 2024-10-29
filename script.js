@@ -5,19 +5,12 @@ function showSection(sectionId) {
     });
 }
 
-window.showSection = showSection;
-
 document.addEventListener("DOMContentLoaded", function() {
     const taskInput = document.getElementById("taskInput");
     const addTaskButton = document.getElementById("addTaskButton");
     const tasksList = document.getElementById("tasks");
     const historyLog = document.getElementById("history");
     const overallProgress = document.getElementById("overallProgress");
-
-    const username = "Alice";  // Example username, can be dynamic
-    const role = "Manager";    // Or "Employee", set this dynamically
-    document.getElementById("username").innerText = username;
-    document.getElementById("role").innerText = role;
 
     let tasks = [];
     let history = [];
@@ -58,58 +51,22 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function addSubtask(taskIndex, subtaskText) {
-        const subtask = { text: subtaskText, completed: false, subtasks: [] };
+        const subtask = { text: subtaskText, completed: false };
         tasks[taskIndex].subtasks.push(subtask);
         renderTasks();
         updateHistory(`Added subtask: "${subtaskText}" to task "${tasks[taskIndex].text}"`);
     }
-    
 
-    function toggleSubtask(taskIndex, subtaskIndex) {
-        const subtask = tasks[taskIndex].subtasks[subtaskIndex];
-        subtask.completed = !subtask.completed;
-        renderTasks();
-        updateHistory(`Marked subtask "${subtask.text}" as ${subtask.completed ? "Done" : "Not Done"}`);
-    }
-
-    function editTask(taskIndex) {
-        const task = tasks[taskIndex];
-        const newText = prompt("Edit Task:", task.text);
-        if (newText) {
-            task.text = newText;
-            renderTasks();
-            updateHistory(`Edited task: "${newText}"`);
-        }
-    }
-
-    function editSubtask(taskIndex, subtaskIndex) {
-        const subtask = tasks[taskIndex].subtasks[subtaskIndex];
-        const newText = prompt("Edit Subtask:", subtask.text);
-        if (newText) {
-            subtask.text = newText;
-            renderTasks();
-            updateHistory(`Edited subtask: "${newText}"`);
-        }
-    }
-
-    function renderTasks(taskList = tasks, indentLevel = 0) {
-        tasksList.innerHTML = taskList.map((task, index) => {
+    function renderTasks() {
+        tasksList.innerHTML = tasks.map((task, index) => {
             const subtasksHTML = task.subtasks.map((subtask, subIndex) => `
-                <li class="subtask" style="margin-left: ${20 * indentLevel}px;">
+                <li class="subtask">
                     ${subtask.text}
                     <button class="done-button" onclick="toggleSubtask(${index}, ${subIndex})">
                         ${subtask.completed ? "Undo" : "Done"}
                     </button>
-                    <button class="edit-button" onclick="editSubtask(${index}, ${subIndex})">Edit</button>
-                    <button class="delete-button" onclick="deleteSubtask(${index}, ${subIndex})">Delete</button>
-                    <button class="add-subtask" onclick="addSubtask(${index}, '')">Add Subtask</button>
-                    ${renderTasks(subtask.subtasks, indentLevel + 1)}
                 </li>
             `).join('');
-            
-            const taskProgress = task.subtasks.length 
-                ? (task.subtasks.filter(st => st.completed).length / task.subtasks.length) * 100 
-                : 0;
 
             return `
                 <li class="list-group-item">
@@ -119,10 +76,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     </button>
                     <button class="edit-button" onclick="editTask(${index})">Edit</button>
                     <button class="delete-button" onclick="deleteTask(${index})">Delete</button>
-                    <button class="add-subtask" onclick="addSubtask(${index}, '')">Add Subtask</button>
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: ${taskProgress}%"></div>
-                    </div>
                     <ul>${subtasksHTML}</ul>
                 </li>
             `;
@@ -141,8 +94,5 @@ document.addEventListener("DOMContentLoaded", function() {
     window.deleteTask = deleteTask;
     window.toggleTaskCompletion = toggleTaskCompletion;
     window.addSubtask = addSubtask;
-    window.editTask = editTask;
-    window.editSubtask = editSubtask;
 });
-
 
