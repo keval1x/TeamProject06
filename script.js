@@ -1,143 +1,212 @@
-// Task and history data storage
-let tasks = [];
-let history = [];
+document.addEventListener('DOMContentLoaded', () => {
+    const tasks = [];
+    const history = [];
 
-// Navigation: show or hide sections
-function showSection(sectionId) {
-    document.querySelectorAll('.section').forEach(section => {
-        section.style.display = 'none';
-    });
-    document.getElementById(sectionId).style.display = 'block';
-}
+    const todoList = document.getElementById('todo-list');
+    const addTaskBtn = document.getElementById('add-task-btn');
+    const progressBar = document.getElementById('progress-bar-inner');
+    const historyLog = document.getElementById('history-log');
 
-// To-Do List: Add a task with an optional subtask array
-function addTask(name) {
-    const task = { id: Date.now(), name, subtasks: [], completed: false };
-    tasks.push(task);
-    addHistory(`Added task: ${name}`);
-    updateTaskList();
-    updateProgress();
-}
+    // Section navigation
+    const navLinks = document.querySelectorAll('.list-group-item');
+    const sections = document.querySelectorAll('.section');
 
-function addSubtask(taskId, subtaskName) {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-        const subtask = { id: Date.now(), name: subtaskName, completed: false };
-        task.subtasks.push(subtask);
-        addHistory(`Added subtask: ${subtaskName} to task: ${task.name}`);
-        updateTaskList();
-        updateProgress();
-    }
-}
-
-function toggleCompleteTask(taskId) {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-        task.completed = !task.completed;
-        addHistory(`Marked task "${task.name}" as ${task.completed ? 'completed' : 'incomplete'}`);
-        updateTaskList();
-        updateProgress();
-    }
-}
-
-function toggleCompleteSubtask(taskId, subtaskId) {
-    const task = tasks.find(t => t.id === taskId);
-    const subtask = task.subtasks.find(st => st.id === subtaskId);
-    if (subtask) {
-        subtask.completed = !subtask.completed;
-        addHistory(`Marked subtask "${subtask.name}" as ${subtask.completed ? 'completed' : 'incomplete'}`);
-        updateTaskList();
-        updateProgress();
-    }
-    // Automatically complete task if all subtasks are completed
-    task.completed = task.subtasks.every(st => st.completed);
-}
-
-function deleteTask(taskId) {
-    tasks = tasks.filter(t => t.id !== taskId);
-    addHistory(`Deleted task with ID: ${taskId}`);
-    updateTaskList();
-    updateProgress();
-}
-
-function updateTaskList() {
-    const taskList = document.getElementById('task-list');
-    taskList.innerHTML = ''; 
-
-    tasks.forEach(task => {
-        let taskElement = document.createElement('div');
-        taskElement.classList.add('task');
-        taskElement.innerHTML = `
-            <p>${task.name}</p>
-            <button onclick="toggleCompleteTask(${task.id})">Complete</button>
-            <button onclick="deleteTask(${task.id})">Delete</button>
-            <button onclick="addSubtaskPrompt(${task.id})">Add Subtask</button>
-        `;
-
-        task.subtasks.forEach(subtask => {
-            const subtaskElement = document.createElement('div');
-            subtaskElement.classList.add('subtask');
-            subtaskElement.innerHTML = `
-                <p>${subtask.name}</p>
-                <button onclick="toggleCompleteSubtask(${task.id}, ${subtask.id})">Complete</button>
-            `;
-            taskElement.appendChild(subtaskElement);
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = this.getAttribute('data-section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(target).style.display = 'block';
         });
-
-        taskList.appendChild(taskElement);
     });
-}
 
-function addSubtaskPrompt(taskId) {
-    const subtaskName = prompt("Enter the subtask name:");
-    if (subtaskName) {
-        addSubtask(taskId, subtaskName);
-    }
-}
-
-function updateProgress() {
-    const completedTasks = tasks.filter(task => task.completed).length;
-    const totalTasks = tasks.length;
-    const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-    document.getElementById('overall-progress').style.width = `${progress}%`;
-}
-
-// History Log: Track the last 25 actions
-function addHistory(action) {
-    history.push(action);
-    if (history.length > 25) history.shift();
-    updateHistoryLog();
-}
-
-function updateHistoryLog() {
-    const log = document.getElementById('history-log');
-    log.innerHTML = '';
-    history.forEach(action => {
-        const actionElement = document.createElement('li');
-        actionElement.textContent = action;
-        log.appendChild(actionElement);
+    // Add Task
+    addTaskBtn.addEventListener('click', () => {
+        const taskTitle = prompt('Enter task title:');
+        if (taskTitle) {
+            const task = {
+                title: taskTitle,
+                completed: false,
+                subtasks: []
+            };
+            tasks.push(task);
+            addToHistory(`Added task: ${taskTitle}`);
+            renderTasks();
+            updateProgress();
+        }
     });
-}
 
-// Design: Change theme and font
-function changeTheme(theme) {
-    document.body.classList.toggle('dark-theme', theme === 'dark');
-}
+    // Render Tasks
+    function renderTasks() {
+        todoList.innerHTML = '';
+        tasks.forEach((task, taskIndex) => {
+            const taskDiv = document.createElement('div');
+            taskDiv.classList.add('card', 'mb-2');
 
-function changeFont(font) {
-    document.body.style.fontFamily = font;
-}
+            const taskHeader = document.createElement('div');
+            taskHeader.classList.add('card-header', 'd-flex', 'justify-content-between', 'align-items-center');
 
-// Prompt user to add a new task
-function addTaskPrompt() {
-    const taskName = prompt("Enter the task name:");
-    if (taskName) {
-        addTask(taskName);
+            const taskTitle = document.createElement('input');
+            taskTitle.type = 'text';
+            taskTitle.value = task.title;
+            taskTitle.classList.add('form-control', 'mr-2');
+            taskTitle.addEventListener('change', () => {
+                task.title = taskTitle.value;
+                addToHistory(`Edited task: ${task.title}`);
+            });
+
+            const taskCheckbox = document.createElement('input');
+            taskCheckbox.type = 'checkbox';
+            taskCheckbox.checked = task.completed;
+            taskCheckbox.classList.add('mr-2');
+            taskCheckbox.addEventListener('change', () => {
+                task.completed = taskCheckbox.checked;
+                addToHistory(`Task ${task.completed ? 'completed' : 'uncompleted'}: ${task.title}`);
+                updateProgress();
+            });
+
+            const removeTaskBtn = document.createElement('button');
+            removeTaskBtn.classList.add('btn', 'btn-danger', 'btn-sm');
+            removeTaskBtn.textContent = 'Remove';
+            removeTaskBtn.addEventListener('click', () => {
+                tasks.splice(taskIndex, 1);
+                addToHistory(`Removed task: ${task.title}`);
+                renderTasks();
+                updateProgress();
+            });
+
+            taskHeader.appendChild(taskCheckbox);
+            taskHeader.appendChild(taskTitle);
+            taskHeader.appendChild(removeTaskBtn);
+
+            // Subtasks
+            const subtaskList = document.createElement('ul');
+            subtaskList.classList.add('list-group', 'list-group-flush');
+
+            task.subtasks.forEach((subtask, subtaskIndex) => {
+                const subtaskItem = document.createElement('li');
+                subtaskItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+
+                const subtaskTitle = document.createElement('input');
+                subtaskTitle.type = 'text';
+                subtaskTitle.value = subtask.title;
+                subtaskTitle.classList.add('form-control', 'mr-2');
+                subtaskTitle.addEventListener('change', () => {
+                    subtask.title = subtaskTitle.value;
+                    addToHistory(`Edited subtask: ${subtask.title}`);
+                });
+
+                const subtaskCheckbox = document.createElement('input');
+                subtaskCheckbox.type = 'checkbox';
+                subtaskCheckbox.checked = subtask.completed;
+                subtaskCheckbox.classList.add('mr-2');
+                subtaskCheckbox.addEventListener('change', () => {
+                    subtask.completed = subtaskCheckbox.checked;
+                    addToHistory(`Subtask ${subtask.completed ? 'completed' : 'uncompleted'}: ${subtask.title}`);
+                    checkTaskCompletion(task);
+                    updateProgress();
+                });
+
+                const removeSubtaskBtn = document.createElement('button');
+                removeSubtaskBtn.classList.add('btn', 'btn-danger', 'btn-sm');
+                removeSubtaskBtn.textContent = 'Remove';
+                removeSubtaskBtn.addEventListener('click', () => {
+                    task.subtasks.splice(subtaskIndex, 1);
+                    addToHistory(`Removed subtask: ${subtask.title}`);
+                    renderTasks();
+                    updateProgress();
+                });
+
+                subtaskItem.appendChild(subtaskCheckbox);
+                subtaskItem.appendChild(subtaskTitle);
+                subtaskItem.appendChild(removeSubtaskBtn);
+                subtaskList.appendChild(subtaskItem);
+            });
+
+            const addSubtaskBtn = document.createElement('button');
+            addSubtaskBtn.classList.add('btn', 'btn-secondary', 'btn-sm', 'mt-2');
+            addSubtaskBtn.textContent = 'Add Subtask';
+            addSubtaskBtn.addEventListener('click', () => {
+                const subtaskTitle = prompt('Enter subtask title:');
+                if (subtaskTitle) {
+                    const subtask = {
+                        title: subtaskTitle,
+                        completed: false
+                    };
+                    task.subtasks.push(subtask);
+                    addToHistory(`Added subtask: ${subtaskTitle}`);
+                    renderTasks();
+                    updateProgress();
+                }
+            });
+
+            const taskBody = document.createElement('div');
+            taskBody.classList.add('card-body');
+            taskBody.appendChild(subtaskList);
+            taskBody.appendChild(addSubtaskBtn);
+
+            taskDiv.appendChild(taskHeader);
+            taskDiv.appendChild(taskBody);
+            todoList.appendChild(taskDiv);
+        });
     }
-}
 
-// Initialize - example task for demonstration
-addTask("Sample Task");
-addSubtask(tasks[0].id, "Sample Subtask");
+    // Check if all subtasks are completed to complete the task
+    function checkTaskCompletion(task) {
+        if (task.subtasks.length > 0) {
+            task.completed = task.subtasks.every(subtask => subtask.completed);
+            renderTasks();
+            updateProgress();
+        }
+    }
 
-document.getElementById("todo").style.display = "block";  // Default to showing the To-Do list section
+    // Update Progress Bar
+    function updateProgress() {
+        const totalItems = tasks.length + tasks.reduce((acc, task) => acc + task.subtasks.length, 0);
+        const completedItems = tasks.filter(task => task.completed).length + tasks.reduce((acc, task) => acc + task.subtasks.filter(subtask => subtask.completed).length, 0);
+
+        const progressPercentage = totalItems === 0 ? 0 : (completedItems / totalItems) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+
+    // Add to History Log
+    function addToHistory(action) {
+        history.unshift(action);
+        if (history.length > 25) {
+            history.pop();
+        }
+        renderHistory();
+    }
+
+    // Render History Log
+    function renderHistory() {
+        historyLog.innerHTML = '';
+        history.forEach(entry => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('list-group-item');
+            listItem.textContent = entry;
+            historyLog.appendChild(listItem);
+        });
+    }
+
+    // Design Section Handlers
+    const colorSchemeSelect = document.getElementById('color-scheme');
+    const fontSelect = document.getElementById('font-select');
+
+    colorSchemeSelect.addEventListener('change', () => {
+        document.body.className = '';
+        const scheme = colorSchemeSelect.value;
+        if (scheme !== 'default') {
+            document.body.classList.add(`${scheme}-theme`);
+        }
+        addToHistory(`Changed color scheme to ${scheme}`);
+    });
+
+    fontSelect.addEventListener('change', () => {
+        document.body.style.fontFamily = fontSelect.value;
+        addToHistory(`Changed font to ${fontSelect.options[fontSelect.selectedIndex].text}`);
+    });
+});
+
