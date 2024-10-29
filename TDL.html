@@ -2,50 +2,70 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List</title>
+    <title>To-Do List Application</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">  
     <link rel="stylesheet" href="styles.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">
-                <button class="btn btn-primary w-100 my-2" onclick="showSection('todo')">To-Do List</button>
-                <button class="btn btn-primary w-100 my-2" onclick="showSection('history')">History Log</button>
-                <button class="btn btn-primary w-100 my-2" onclick="showSection('design')">Design</button>
-            </nav>
-            
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div id="todo" class="section">
-                    <h2>To-Do List</h2>
-                    <!-- Task list and progress bar here -->
-                    <div id="task-list"></div>
-                    <div class="progress">
-                        <div class="progress-bar" id="overall-progress" role="progressbar" style="width: 0;"></div>
-                    </div>
-                </div>
 
-                <div id="history" class="section" style="display:none;">
-                    <h2>History Log</h2>
-                    <ul id="history-log"></ul>
-                </div>
-
-                <div id="design" class="section" style="display:none;">
-                    <h2>Design</h2>
-                    <button onclick="changeTheme('dark')">Dark Theme</button>
-                    <button onclick="changeTheme('light')">Light Theme</button>
-                    <button onclick="changeFont('Arial')">Arial</button>
-                    <button onclick="changeFont('Courier')">Courier</button>
-                </div>
-            </main>
+<div class="d-flex">
+    <!-- Sidebar -->
+    <div class="bg-light border-right" id="sidebar-wrapper">
+        <div class="sidebar-heading">Menu</div>
+        <div class="list-group list-group-flush">
+            <a href="#" class="list-group-item list-group-item-action bg-light" data-section="todo-section">To-Do List</a>
+            <a href="#" class="list-group-item list-group-item-action bg-light" data-section="history-section">History Log</a>
+            <a href="#" class="list-group-item list-group-item-action bg-light" data-section="design-section">Design</a>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="w-100 p-3">
+        <!-- To-Do List Section -->
+        <div id="todo-section" class="section">
+            <h2>To-Do List</h2>
+            <div id="todo-list"></div>
+            <button id="add-task-btn" class="btn btn-primary mt-3">Add Task</button>
+            <!-- Progress Bar -->
+            <div class="progress mt-3">
+                <div id="progress-bar-inner" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- History Log Section -->
+        <div id="history-section" class="section" style="display: none;">
+            <h2>History Log</h2>
+            <ul id="history-log" class="list-group"></ul>
+        </div>
+
+        <!-- Design Section -->
+        <div id="design-section" class="section" style="display: none;">
+            <h2>Design Settings</h2>
+            <div class="form-group">
+                <label for="color-scheme">Color Scheme:</label>
+                <select id="color-scheme" class="form-control">
+                    <option value="default">Default</option>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="font-select">Font:</label>
+                <select id="font-select" class="form-control">
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="'Times New Roman', serif">Times New Roman</option>
+                    <option value="'Courier New', monospace">Courier New</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap and jQuery JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>  
+<script src="script.js"></script>
 </body>
 </html>
-
 
