@@ -1,10 +1,3 @@
-function showSection(sectionId) {
-    document.querySelectorAll('.content-section').forEach(section => {
-        section.style.display = section.id === sectionId ? 'block' : 'none';
-        section.classList.toggle('active', section.id === sectionId);
-    });
-}
-
 document.addEventListener("DOMContentLoaded", function() {
     const taskInput = document.getElementById("taskInput");
     const addTaskButton = document.getElementById("addTaskButton");
@@ -58,15 +51,39 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function editTask(taskIndex) {
-        const newTaskText = prompt("Edit Task:", tasks[taskIndex].text);
-        if (newTaskText) {
-            tasks[taskIndex].text = newTaskText;
-            renderTasks();
-            updateHistory(`Edited task: "${newTaskText}"`);
-        }
+        const task = tasks[taskIndex];
+        const taskElement = document.querySelector(`#task-${taskIndex} .task-text`);
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = task.text;
+        input.classList.add("form-control");
+       
+        // Save on blur or Enter key
+        input.addEventListener("blur", () => saveEdit(taskIndex, input.value));
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") saveEdit(taskIndex, input.value);
+        });
+
+        // Replace text with input field
+        taskElement.innerHTML = "";
+        taskElement.appendChild(input);
+        input.focus();
+    }
+
+    function saveEdit(taskIndex, newText) {
+        tasks[taskIndex].text = newText;
+        renderTasks();
+        updateHistory(`Edited task: "${newText}"`);
     }
 
     function renderTasks() {
+        // Auto-complete task if all subtasks are done
+        tasks.forEach((task, index) => {
+            if (task.subtasks.length > 0 && task.subtasks.every(subtask => subtask.completed)) {
+                task.completed = true;
+            }
+        });
+
         tasksList.innerHTML = tasks.map((task, index) => {
             const subtasksHTML = task.subtasks.map((subtask, subIndex) => `
                 <li class="subtask">
@@ -77,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function() {
             `).join('');
 
             return `
-                <li class="list-group-item">
+                <li class="list-group-item" id="task-${index}">
                     <div class="task-content">
                         <span class="task-text">${task.text}</span>
                         <div class="task-buttons">
@@ -93,6 +110,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 </li>
             `;
         }).join('');
+
         updateProgress();
     }
 
@@ -107,4 +125,5 @@ document.addEventListener("DOMContentLoaded", function() {
     window.deleteTask = deleteTask;
     window.toggleTaskCompletion = toggleTaskCompletion;
     window.addSubtask = addSubtask;
+    window.editTask = editTask;
 });
