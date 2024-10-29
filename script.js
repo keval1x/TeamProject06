@@ -1,15 +1,11 @@
 function showSection(sectionId) {
     document.querySelectorAll('.content-section').forEach(section => {
         section.style.display = section.id === sectionId ? 'block' : 'none';
+        section.classList.toggle('active', section.id === sectionId);
     });
 }
 
-// Attach showSection to the global window object
 window.showSection = showSection;
-
-
-
-
 
 document.addEventListener("DOMContentLoaded", function() {
     const taskInput = document.getElementById("taskInput");
@@ -25,12 +21,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let tasks = [];
     let history = [];
-
-    function showSection(sectionId) {
-        document.querySelectorAll('.content-section').forEach(section => {
-            section.style.display = section.id === sectionId ? 'block' : 'none';
-        });
-    }
 
     function updateHistory(action) {
         history.unshift(action);
@@ -128,5 +118,4 @@ document.addEventListener("DOMContentLoaded", function() {
     window.toggleTaskCompletion = toggleTaskCompletion;
     window.addSubtask = addSubtask;
 });
-
 
