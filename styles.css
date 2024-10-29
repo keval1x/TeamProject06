@@ -1,49 +1,30 @@
-body {
+/* Base layout styling */
+body, html {
+    height: 100%;
+    font-family: 'Arial', sans-serif;
+}
+
+.container-fluid {
     display: flex;
-    font-family: Arial, sans-serif;
 }
 
 .sidebar {
-    width: 200px;
-    background-color: #333;
-    color: white;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar button {
-    background: none;
-    border: none;
-    color: white;
-    padding: 10px;
-    cursor: pointer;
-}
-
-.sidebar button:hover {
-    background-color: #555;
-}
-
-.content {
-    flex: 1;
-    padding: 20px;
+    background-color: #f8f9fa;
+    height: 100vh;
+    padding-top: 10px;
 }
 
 .section {
-    display: none;
+    padding: 20px;
 }
 
-.progress-bar {
-    width: 100%;
-    background-color: #eee;
-    height: 10px;
-    margin-top: 10px;
+/* Dark and light theme */
+body.light-theme {
+    background-color: #ffffff;
+    color: #000000;
 }
 
-.progress {
-    height: 100%;
-    background-color: #4caf50;
-    width: 0%;
+body.dark-theme {
+    background-color: #2c2c2c;
+    color: #f8f9fa;
 }
-
-
