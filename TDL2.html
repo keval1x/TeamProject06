@@ -10,13 +10,14 @@
 body {
   margin: 0;
   padding: 0;
+  font-family: sans-serif;
 }
 
 .container-fluid {
   padding: 0;
 }
 
-.design-bar button {
+.design-bar button, .design-bar select {
   margin-right: 5px;
 }
 
@@ -59,6 +60,25 @@ body {
   margin-bottom: 10px;
 }
 
+.status-label {
+  float: right;
+  font-weight: bold;
+}
+
+.dark-mode {
+  background-color: #333 !important;
+  color: #fff !important;
+}
+
+.dark-mode .task-bar, .dark-mode .subtask-bar {
+  background-color: #444;
+}
+
+.dark-mode .list-group-item {
+  background-color: #333;
+  color: #fff;
+}
+
 </style>
 </head>
 <body>
@@ -72,13 +92,14 @@ body {
       </div>
     </div>
   </div>
-  <!-- Design Bar and Sidebar -->
+  <!-- Sidebar and Content -->
   <div class="row">
     <div class="col-md-2">
       <!-- Sidebar -->
       <ul class="list-group">
-        <li class="list-group-item active" onclick="showToDo()">To Do List</li>
-        <li class="list-group-item" onclick="showHistory()">History</li>
+        <li class="list-group-item active" onclick="showToDo()" id="todoButton">To Do List</li>
+        <li class="list-group-item" onclick="showHistory()" id="historyButton">History</li>
+        <li class="list-group-item" onclick="showDesign()" id="designButton">Design</li>
       </ul>
     </div>
     <div class="col-md-10">
@@ -87,20 +108,31 @@ body {
         <button onclick="formatText('bold')" onmousedown="event.preventDefault()">Bold</button>
         <button onclick="formatText('italic')" onmousedown="event.preventDefault()">Italic</button>
         <button onclick="formatText('foreColor', 'red')" onmousedown="event.preventDefault()">Red</button>
-        <button onclick="formatText('fontName', 'Arial')" onmousedown="event.preventDefault()">Arial</button>
+        <select onchange="formatText('fontName', this.value)" onmousedown="event.preventDefault()">
+          <option value="">Select Font</option>
+          <option value="Arial">Arial</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <!-- Add more fonts as desired -->
+        </select>
       </div>
       <!-- Add Task Button -->
       <button class="btn btn-primary mb-2" onclick="addTask()">Add Task</button>
       <div id="contentArea">
+        <!-- Task List -->
         <div id="taskList"></div>
+        <!-- History Content -->
+        <div id="historyContent" style="display:none;"></div>
+        <!-- Design Content -->
+        <div id="designContent" style="display:none;"></div>
       </div>
     </div>
   </div>
 </div>
 <script>
 let taskCounter = 0;
-let completedItems = 0;
-let totalItems = 0;
+let totalTasks = 0;
+let completedTasks = 0;
 let history = [];
 
 function autoResizeDiv(div) {
@@ -109,108 +141,158 @@ function autoResizeDiv(div) {
 }
 
 function addTask() {
-  totalItems++;
+  totalTasks++;
   let taskId = 'task' + taskCounter++;
   let taskDiv = document.createElement('div');
   taskDiv.className = 'task-bar';
   taskDiv.id = taskId;
   taskDiv.dataset.completed = 'false';
   taskDiv.innerHTML = `
-    <div contenteditable="true" class="task-content" oninput="autoResizeDiv(this)" placeholder="New Task"></div>
+    <div contenteditable="true" class="task-content" placeholder="New Task"></div>
     <div class="text-right">
       <button onclick="addSubtask('${taskId}')">Add Subtask</button>
+      <button onclick="editTask('${taskId}', this)">Save</button>
       <button onclick="deleteTask('${taskId}')">Delete</button>
-      <button onclick="completeTask('${taskId}')">Complete</button>
     </div>
   `;
   document.getElementById('taskList').appendChild(taskDiv);
-  logHistory('Added task', taskId);
+  let contentDiv = taskDiv.querySelector('.task-content');
+  contentDiv.addEventListener('input', function() {
+    autoResizeDiv(contentDiv);
+  });
+  contentDiv.focus();
+  logHistory('Added task', 'New Task');
 }
 
 function addSubtask(parentId) {
-  totalItems++;
   let subtaskDiv = document.createElement('div');
   subtaskDiv.className = 'subtask-bar';
   subtaskDiv.dataset.completed = 'false';
   subtaskDiv.innerHTML = `
-    <div contenteditable="true" class="subtask-content" oninput="autoResizeDiv(this)" placeholder="New Subtask"></div>
+    <div contenteditable="true" class="subtask-content" placeholder="New Subtask"></div>
+    <div class="status-label">Uncomplete</div>
     <div class="text-right">
+      <button onclick="editSubtask(this)">Save</button>
       <button onclick="deleteSubtask(this)">Delete</button>
       <button onclick="completeSubtask(this)">Complete</button>
     </div>
   `;
-  document.getElementById(parentId).appendChild(subtaskDiv);
-  logHistory('Added subtask to ' + parentId, '');
+  let parentDiv = document.getElementById(parentId);
+  parentDiv.appendChild(subtaskDiv);
+  let contentDiv = subtaskDiv.querySelector('.subtask-content');
+  contentDiv.addEventListener('input', function() {
+    autoResizeDiv(contentDiv);
+  });
+  contentDiv.focus();
+  logHistory('Added subtask', 'New Subtask');
 }
 
 function deleteTask(taskId) {
   let taskElement = document.getElementById(taskId);
-  // Adjust totalItems and completedItems
-  let subtasks = taskElement.querySelectorAll('.subtask-bar');
-  let numSubtasks = subtasks.length;
-  totalItems -= (1 + numSubtasks);
+  let taskName = taskElement.querySelector('.task-content').textContent || 'Unnamed Task';
   if (taskElement.dataset.completed === 'true') {
-    completedItems--;
+    completedTasks--;
   }
-  subtasks.forEach(subtask => {
-    if (subtask.dataset.completed === 'true') {
-      completedItems--;
-    }
-  });
+  totalTasks--;
   taskElement.remove();
   updateProgress();
-  logHistory('Deleted task', taskId);
+  logHistory('Deleted task', taskName);
 }
 
-function deleteSubtask(element) {
-  let subtaskElement = element.parentElement.parentElement;
-  if (subtaskElement.dataset.completed === 'true') {
-    completedItems--;
-  }
-  totalItems--;
+function deleteSubtask(button) {
+  let subtaskElement = button.parentElement.parentElement;
+  let subtaskName = subtaskElement.querySelector('.subtask-content').textContent || 'Unnamed Subtask';
   subtaskElement.remove();
-  updateProgress();
-  logHistory('Deleted subtask', '');
+  logHistory('Deleted subtask', subtaskName);
+  // Check if parent task needs to be updated
+  let parentTaskId = subtaskElement.parentElement.id;
+  checkTaskCompletion(parentTaskId);
 }
 
-function completeTask(taskId) {
-  let taskElement = document.getElementById(taskId);
-  if (taskElement.dataset.completed === 'true') {
-    // Uncomplete task
-    completedItems--;
-    taskElement.style.textDecoration = 'none';
-    taskElement.dataset.completed = 'false';
-    logHistory('Uncompleted task', taskId);
+function editTask(taskId, button) {
+  let taskDiv = document.getElementById(taskId);
+  let contentDiv = taskDiv.querySelector('.task-content');
+  if (contentDiv.isContentEditable) {
+    contentDiv.contentEditable = 'false';
+    button.textContent = 'Edit';
+    logHistory('Edited task', contentDiv.textContent || 'Unnamed Task');
   } else {
-    // Complete task
-    completedItems++;
-    taskElement.style.textDecoration = 'line-through';
-    taskElement.dataset.completed = 'true';
-    logHistory('Completed task', taskId);
+    contentDiv.contentEditable = 'true';
+    contentDiv.focus();
+    button.textContent = 'Save';
   }
-  updateProgress();
 }
 
-function completeSubtask(element) {
-  let subtaskElement = element.parentElement.parentElement;
+function editSubtask(button) {
+  let subtaskDiv = button.parentElement.parentElement;
+  let contentDiv = subtaskDiv.querySelector('.subtask-content');
+  if (contentDiv.isContentEditable) {
+    contentDiv.contentEditable = 'false';
+    button.textContent = 'Edit';
+    logHistory('Edited subtask', contentDiv.textContent || 'Unnamed Subtask');
+  } else {
+    contentDiv.contentEditable = 'true';
+    contentDiv.focus();
+    button.textContent = 'Save';
+  }
+}
+
+function completeSubtask(button) {
+  let subtaskElement = button.parentElement.parentElement;
+  let statusLabel = subtaskElement.querySelector('.status-label');
+  let subtaskName = subtaskElement.querySelector('.subtask-content').textContent || 'Unnamed Subtask';
   if (subtaskElement.dataset.completed === 'true') {
     // Uncomplete subtask
-    completedItems--;
-    subtaskElement.style.textDecoration = 'none';
     subtaskElement.dataset.completed = 'false';
-    logHistory('Uncompleted subtask', '');
+    subtaskElement.style.textDecoration = 'none';
+    button.textContent = 'Complete';
+    statusLabel.textContent = 'Uncomplete';
+    logHistory('Uncompleted subtask', subtaskName);
   } else {
     // Complete subtask
-    completedItems++;
-    subtaskElement.style.textDecoration = 'line-through';
     subtaskElement.dataset.completed = 'true';
-    logHistory('Completed subtask', '');
+    subtaskElement.style.textDecoration = 'line-through';
+    button.textContent = 'Uncomplete';
+    statusLabel.textContent = 'Complete';
+    logHistory('Completed subtask', subtaskName);
   }
-  updateProgress();
+  // Check if parent task needs to be updated
+  let parentTaskId = subtaskElement.parentElement.id;
+  checkTaskCompletion(parentTaskId);
+}
+
+function checkTaskCompletion(taskId) {
+  let taskElement = document.getElementById(taskId);
+  let subtasks = taskElement.querySelectorAll('.subtask-bar');
+  let allSubtasksCompleted = true;
+  subtasks.forEach(subtask => {
+    if (subtask.dataset.completed !== 'true') {
+      allSubtasksCompleted = false;
+    }
+  });
+  if (allSubtasksCompleted) {
+    if (taskElement.dataset.completed !== 'true') {
+      // Mark task as completed
+      completedTasks++;
+      taskElement.dataset.completed = 'true';
+      taskElement.style.textDecoration = 'line-through';
+      logHistory('Completed task', taskElement.querySelector('.task-content').textContent || 'Unnamed Task');
+      updateProgress();
+    }
+  } else {
+    if (taskElement.dataset.completed === 'true') {
+      // Uncomplete task
+      completedTasks--;
+      taskElement.dataset.completed = 'false';
+      taskElement.style.textDecoration = 'none';
+      logHistory('Uncompleted task', taskElement.querySelector('.task-content').textContent || 'Unnamed Task');
+      updateProgress();
+    }
+  }
 }
 
 function updateProgress() {
-  let progress = totalItems === 0 ? 0 : (completedItems / totalItems) * 100;
+  let progress = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
   document.getElementById('progressBar').style.width = progress + '%';
 }
 
@@ -218,33 +300,89 @@ function formatText(command, value = null) {
   document.execCommand(command, false, value);
 }
 
+function showToDo() {
+  document.getElementById('progressContainer').style.display = 'block';
+  document.getElementById('taskList').style.display = 'block';
+  document.getElementById('historyContent').style.display = 'none';
+  document.getElementById('designContent').style.display = 'none';
+  // Update active class
+  document.getElementById('todoButton').classList.add('active');
+  document.getElementById('historyButton').classList.remove('active');
+  document.getElementById('designButton').classList.remove('active');
+}
+
 function showHistory() {
   document.getElementById('progressContainer').style.display = 'none';
-  let contentArea = document.getElementById('contentArea');
-  contentArea.innerHTML = '<h3>History</h3>';
+  document.getElementById('taskList').style.display = 'none';
+  document.getElementById('historyContent').style.display = 'block';
+  document.getElementById('designContent').style.display = 'none';
+  // Update active class
+  document.getElementById('todoButton').classList.remove('active');
+  document.getElementById('historyButton').classList.add('active');
+  document.getElementById('designButton').classList.remove('active');
+  // Load history content
+  let historyContent = document.getElementById('historyContent');
+  historyContent.innerHTML = '<h3>History</h3>';
   history.forEach(entry => {
     let p = document.createElement('p');
     p.textContent = entry;
-    contentArea.appendChild(p);
+    historyContent.appendChild(p);
   });
 }
 
-function showToDo() {
-  document.getElementById('progressContainer').style.display = 'block';
-  let contentArea = document.getElementById('contentArea');
-  contentArea.innerHTML = '';
-  let taskList = document.createElement('div');
-  taskList.id = 'taskList';
-  contentArea.appendChild(taskList);
+function showDesign() {
+  document.getElementById('progressContainer').style.display = 'none';
+  document.getElementById('taskList').style.display = 'none';
+  document.getElementById('historyContent').style.display = 'none';
+  document.getElementById('designContent').style.display = 'block';
+  // Update active class
+  document.getElementById('todoButton').classList.remove('active');
+  document.getElementById('historyButton').classList.remove('active');
+  document.getElementById('designButton').classList.add('active');
+  // Load design options
+  let designContent = document.getElementById('designContent');
+  designContent.innerHTML = `
+    <h3>Design Settings</h3>
+    <div class="form-group">
+      <label for="generalFont">Select General Font:</label>
+      <select id="generalFont" onchange="changeGeneralFont(this.value)" class="form-control">
+        <option value="">Default</option>
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <!-- Add more fonts as desired -->
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="colorScheme">Color Scheme:</label>
+      <select id="colorScheme" onchange="changeColorScheme(this.value)" class="form-control">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  `;
 }
 
-function logHistory(action, id) {
-  history.push(`${action} ${id}`);
+function changeGeneralFont(font) {
+  document.body.style.fontFamily = font;
+}
+
+function changeColorScheme(scheme) {
+  if (scheme === 'dark') {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+}
+
+function logHistory(action, name) {
+  history.push(`${action}: ${name}`);
 }
 
 </script>
 </body>
 </html>
+
 
 
 
