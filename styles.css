@@ -36,6 +36,21 @@
     margin-left: 20px;
 }
 
+/* Toolbar Styling */
+.toolbar {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.toolbar button {
+    font-weight: bold;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background: #f0f0f0;
+    cursor: pointer;
+}
+
 /* Dark Theme */
 body.dark-theme {
     background-color: #343a40;
@@ -83,4 +98,5 @@ body.light-theme .task-item {
 body.light-theme .task-item input[type="text"] {
     color: #000;
 }
+
 
