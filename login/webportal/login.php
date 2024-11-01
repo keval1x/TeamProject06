@@ -19,8 +19,7 @@ include "session.php";
         echo '<script type="text/javascript"> window.location="homepage.php"; </script>'; 
     }
 ?>
-        
-<body class="p-5 mx-6 border-0 bd-example m-0 border-0 my-5 c">
+<body class="p-5 mx-6 border-0 bd-example m-0 border-0 my-5 c bdy">
 
     <div class="container-fluid p-5 bg-primary text-white text-center min-width rbh">
         <h1>Make It All Webportal</h1>
@@ -28,11 +27,11 @@ include "session.php";
 
     <form action="login.php" method="post" class="p-5 c rbb">
         <fieldset>
-            <input class="lf mb-2" type="email" id="usern" name="usern" onkeydown="return event.key != 'Enter';">
-            <input class="lf mb-2" type="password" id="passw" name="passw"><br>
-            <button class="lf" type="submit" name="login">Login</button>
+            <input class="lf mb-4 rbtb" type="email" id="usern" name="usern" onkeydown="return event.key != 'Enter';">
+            <input class="lf mb-4 rbtb" type="password" id="passw" name="passw"><br>
+            <button class="lf rbtb blrc" type="submit" name="login">Login</button>
             <a href="register.php">
-                <button class="lf" type="button">Register</button>
+                <button class="lf rbtb brrc" type="button">Register</button>
             </a>
         </fieldset>
     </form>
@@ -44,7 +43,6 @@ $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "usercreds";
-//consider replacing with non root user
 
 $conn = mysqli_connect($servername, $username, $password, $dbname);
 
