@@ -10,31 +10,40 @@
   />
   <!-- Custom CSS -->
   <style>
-    /* Custom styles */
-    .subtask {
-      width: 66.66%;
-      margin-left: auto;
-      margin-left: 20px; /* Adjust subtask indentation */
-    }
-
-    .completed {
-      text-decoration: line-through;
-      opacity: 0.6;
-    }
-
-    /* Optional arrow linking subtasks */
-    .subtask::before {
-      content: '';
-      position: absolute;
-      left: -20px;
-      width: 20px;
-      height: 2px;
-      background: #000;
-      top: 50%;
+    /* Reset list styles */
+    ul {
+      list-style-type: none;
+      padding-left: 0;
     }
 
     .list-group-item {
       position: relative;
+      margin-left: calc(var(--level, 0) * 20px);
+    }
+
+    /* Arrow lines */
+    .list-group-item::before,
+    .list-group-item::after {
+      content: '';
+      position: absolute;
+      left: calc(-10px + (var(--level, 0) * -20px));
+      border-color: #000;
+    }
+
+    /* Vertical line */
+    .list-group-item::before {
+      top: 0;
+      height: 100%;
+      width: 0;
+      border-left: 1px solid;
+    }
+
+    /* Horizontal line */
+    .list-group-item::after {
+      top: 20px;
+      width: 10px;
+      height: 0;
+      border-top: 1px solid;
     }
 
     /* Adjust task actions alignment */
@@ -46,6 +55,11 @@
     .list-group-item .form-control {
       width: 100%;
       margin-right: 10px;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      opacity: 0.6;
     }
   </style>
 </head>
@@ -91,6 +105,10 @@
   <script>
     document.getElementById('add-task-btn').addEventListener('click', addTask);
 
+    function setNestingLevel(element, level) {
+      element.style.setProperty('--level', level);
+    }
+
     function addTask() {
       const taskInput = document.getElementById('task-input');
       const taskText = taskInput.value.trim();
@@ -101,6 +119,9 @@
         // Create task item
         const taskItem = document.createElement('li');
         taskItem.className = 'list-group-item';
+
+        // Set nesting level
+        setNestingLevel(taskItem, 0); // Level 0 for parent tasks
 
         // Task content container
         const taskContent = document.createElement('div');
@@ -155,22 +176,33 @@
       taskActions.appendChild(deleteBtn);
       taskActions.appendChild(completeBtn);
 
-      // Add Subtask button for parent tasks
-      if (!isSubtask) {
-        const addSubtaskBtn = document.createElement('button');
-        addSubtaskBtn.className = 'btn btn-sm btn-primary';
-        addSubtaskBtn.innerText = 'Add Subtask';
-        addSubtaskBtn.addEventListener('click', () => addSubtask(taskItem));
-        taskActions.appendChild(addSubtaskBtn);
-      }
+      // Add Subtask button for all tasks
+      const addSubtaskBtn = document.createElement('button');
+      addSubtaskBtn.className = 'btn btn-sm btn-primary';
+      addSubtaskBtn.innerText = 'Add Subtask';
+      addSubtaskBtn.addEventListener('click', () => addSubtask(taskItem));
+      taskActions.appendChild(addSubtaskBtn);
 
       return taskActions;
     }
 
     function addSubtask(parentTaskItem) {
+      // Find or create the nested subtask list
+      let subtaskList = parentTaskItem.querySelector('ul');
+      if (!subtaskList) {
+        subtaskList = document.createElement('ul');
+        subtaskList.className = 'list-group';
+        parentTaskItem.appendChild(subtaskList);
+      }
+
       // Create subtask item
       const subtaskItem = document.createElement('li');
       subtaskItem.className = 'list-group-item subtask';
+
+      // Set nesting level
+      const parentLevel = parseInt(parentTaskItem.style.getPropertyValue('--level')) || 0;
+      const subtaskLevel = parentLevel + 1;
+      setNestingLevel(subtaskItem, subtaskLevel);
 
       // Subtask content container
       const subtaskContent = document.createElement('div');
@@ -190,8 +222,8 @@
       subtaskContent.appendChild(subtaskActions);
       subtaskItem.appendChild(subtaskContent);
 
-      // Insert subtask after parent task
-      parentTaskItem.insertAdjacentElement('afterend', subtaskItem);
+      // Append subtask item to the subtask list
+      subtaskList.appendChild(subtaskItem);
 
       // Focus on the input field
       subtaskInput.focus();
@@ -221,9 +253,7 @@
         subtaskItem.firstChild.appendChild(subtaskActions);
 
         // Create actions
-        const actions = createTaskActions(subtaskItem, subtaskDescription, true);
-
-        // Append actions
+        const actions = createTaskActions(subtaskItem, subtaskDescription, false);
         subtaskActions.innerHTML = '';
         subtaskActions.appendChild(actions);
 
@@ -299,4 +329,5 @@
   </script>
 </body>
 </html>
+
 
