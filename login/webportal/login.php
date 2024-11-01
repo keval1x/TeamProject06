@@ -31,7 +31,9 @@ include "session.php";
             <input class="lf mb-2" type="email" id="usern" name="usern" onkeydown="return event.key != 'Enter';">
             <input class="lf mb-2" type="password" id="passw" name="passw"><br>
             <button class="lf" type="submit" name="login">Login</button>
-            <button class="lf" type="button" onclick="lreq(false)">Register</button>
+            <a href="register.php">
+                <button class="lf" type="button">Register</button>
+            </a>
         </fieldset>
     </form>
     <script src="js/lreqs.js"></script>
