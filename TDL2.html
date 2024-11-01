@@ -7,49 +7,64 @@
  href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
  rel="stylesheet">
 <style>
-.task-bar {
-  width: 100%;
-  background-color: #f8f9fa;
-  padding: 10px;
-  margin-bottom: 5px;
+body {
+  margin: 0;
+  padding: 0;
 }
 
-.subtask-bar {
-  width: 66.6%;
-  background-color: #e9ecef;
-  padding: 10px;
-  margin-left: 33.3%;
-  margin-bottom: 5px;
+.container-fluid {
+  padding: 0;
 }
 
 .design-bar button {
   margin-right: 5px;
 }
 
-textarea {
+.task-bar, .subtask-bar {
+  background-color: #f8f9fa;
+  padding: 10px;
+  margin-bottom: 5px;
+}
+
+.task-bar {
   width: 100%;
-  resize: none;
-  overflow: hidden;
+}
+
+.subtask-bar {
+  width: 66.6%;
+  margin-left: 33.3%;
+}
+
+.task-content, .subtask-content {
+  width: 100%;
   min-height: 50px;
   font-size: 16px;
   border: none;
   background: transparent;
+  outline: none;
 }
+
+.task-content[placeholder]:empty:before,
+.subtask-content[placeholder]:empty:before {
+  content: attr(placeholder);
+  color: #999;
+}
+
+.task-content, .subtask-content {
+  resize: none;
+  overflow: hidden;
+}
+
+.progress {
+  margin-bottom: 10px;
+}
+
 </style>
 </head>
 <body>
 <div class="container-fluid">
-  <!-- Design Bar -->
-  <div class="row design-bar">
-    <div class="col">
-      <button onclick="formatText('bold')">Bold</button>
-      <button onclick="formatText('italic')">Italic</button>
-      <button onclick="formatText('color')">Color</button>
-      <button onclick="formatText('font')">Font</button>
-    </div>
-  </div>
   <!-- Progress Bar -->
-  <div class="row">
+  <div id="progressContainer" class="row">
     <div class="col">
       <div class="progress">
         <div id="progressBar" class="progress-bar" role="progressbar"
@@ -57,17 +72,25 @@ textarea {
       </div>
     </div>
   </div>
-  <!-- Sidebar and Content -->
+  <!-- Design Bar and Sidebar -->
   <div class="row">
     <div class="col-md-2">
+      <!-- Sidebar -->
       <ul class="list-group">
         <li class="list-group-item active" onclick="showToDo()">To Do List</li>
         <li class="list-group-item" onclick="showHistory()">History</li>
       </ul>
     </div>
     <div class="col-md-10">
+      <!-- Formatting Buttons -->
+      <div class="design-bar mb-2">
+        <button onclick="formatText('bold')" onmousedown="event.preventDefault()">Bold</button>
+        <button onclick="formatText('italic')" onmousedown="event.preventDefault()">Italic</button>
+        <button onclick="formatText('foreColor', 'red')" onmousedown="event.preventDefault()">Red</button>
+        <button onclick="formatText('fontName', 'Arial')" onmousedown="event.preventDefault()">Arial</button>
+      </div>
       <!-- Add Task Button -->
-      <button class="btn btn-primary my-2" onclick="addTask()">Add Task</button>
+      <button class="btn btn-primary mb-2" onclick="addTask()">Add Task</button>
       <div id="contentArea">
         <div id="taskList"></div>
       </div>
@@ -76,26 +99,26 @@ textarea {
 </div>
 <script>
 let taskCounter = 0;
-let completedTasks = 0;
-let totalTasks = 0;
+let completedItems = 0;
+let totalItems = 0;
 let history = [];
 
-function autoResizeTextarea(textarea) {
-  textarea.style.height = 'auto';
-  textarea.style.height = textarea.scrollHeight + 'px';
+function autoResizeDiv(div) {
+  div.style.height = 'auto';
+  div.style.height = div.scrollHeight + 'px';
 }
 
 function addTask() {
-  totalTasks++;
+  totalItems++;
   let taskId = 'task' + taskCounter++;
   let taskDiv = document.createElement('div');
   taskDiv.className = 'task-bar';
   taskDiv.id = taskId;
+  taskDiv.dataset.completed = 'false';
   taskDiv.innerHTML = `
-    <textarea placeholder="New Task" oninput="autoResizeTextarea(this)"></textarea>
+    <div contenteditable="true" class="task-content" oninput="autoResizeDiv(this)" placeholder="New Task"></div>
     <div class="text-right">
       <button onclick="addSubtask('${taskId}')">Add Subtask</button>
-      <button onclick="editTask('${taskId}')">Edit</button>
       <button onclick="deleteTask('${taskId}')">Delete</button>
       <button onclick="completeTask('${taskId}')">Complete</button>
     </div>
@@ -105,12 +128,13 @@ function addTask() {
 }
 
 function addSubtask(parentId) {
+  totalItems++;
   let subtaskDiv = document.createElement('div');
   subtaskDiv.className = 'subtask-bar';
+  subtaskDiv.dataset.completed = 'false';
   subtaskDiv.innerHTML = `
-    <textarea placeholder="New Subtask" oninput="autoResizeTextarea(this)"></textarea>
+    <div contenteditable="true" class="subtask-content" oninput="autoResizeDiv(this)" placeholder="New Subtask"></div>
     <div class="text-right">
-      <button onclick="editSubtask(this)">Edit</button>
       <button onclick="deleteSubtask(this)">Delete</button>
       <button onclick="completeSubtask(this)">Complete</button>
     </div>
@@ -120,49 +144,82 @@ function addSubtask(parentId) {
 }
 
 function deleteTask(taskId) {
-  document.getElementById(taskId).remove();
-  totalTasks--;
+  let taskElement = document.getElementById(taskId);
+  // Adjust totalItems and completedItems
+  let subtasks = taskElement.querySelectorAll('.subtask-bar');
+  let numSubtasks = subtasks.length;
+  totalItems -= (1 + numSubtasks);
+  if (taskElement.dataset.completed === 'true') {
+    completedItems--;
+  }
+  subtasks.forEach(subtask => {
+    if (subtask.dataset.completed === 'true') {
+      completedItems--;
+    }
+  });
+  taskElement.remove();
   updateProgress();
   logHistory('Deleted task', taskId);
 }
 
-function editTask(taskId) {
-  // Implement edit functionality
-  logHistory('Edited task', taskId);
-}
-
-function completeTask(taskId) {
-  completedTasks++;
-  document.getElementById(taskId).style.textDecoration = 'line-through';
-  updateProgress();
-  logHistory('Completed task', taskId);
-}
-
 function deleteSubtask(element) {
-  element.parentElement.parentElement.remove();
+  let subtaskElement = element.parentElement.parentElement;
+  if (subtaskElement.dataset.completed === 'true') {
+    completedItems--;
+  }
+  totalItems--;
+  subtaskElement.remove();
+  updateProgress();
   logHistory('Deleted subtask', '');
 }
 
-function editSubtask(element) {
-  // Implement edit functionality
-  logHistory('Edited subtask', '');
+function completeTask(taskId) {
+  let taskElement = document.getElementById(taskId);
+  if (taskElement.dataset.completed === 'true') {
+    // Uncomplete task
+    completedItems--;
+    taskElement.style.textDecoration = 'none';
+    taskElement.dataset.completed = 'false';
+    logHistory('Uncompleted task', taskId);
+  } else {
+    // Complete task
+    completedItems++;
+    taskElement.style.textDecoration = 'line-through';
+    taskElement.dataset.completed = 'true';
+    logHistory('Completed task', taskId);
+  }
+  updateProgress();
 }
 
 function completeSubtask(element) {
-  element.parentElement.parentElement.style.textDecoration = 'line-through';
-  logHistory('Completed subtask', '');
+  let subtaskElement = element.parentElement.parentElement;
+  if (subtaskElement.dataset.completed === 'true') {
+    // Uncomplete subtask
+    completedItems--;
+    subtaskElement.style.textDecoration = 'none';
+    subtaskElement.dataset.completed = 'false';
+    logHistory('Uncompleted subtask', '');
+  } else {
+    // Complete subtask
+    completedItems++;
+    subtaskElement.style.textDecoration = 'line-through';
+    subtaskElement.dataset.completed = 'true';
+    logHistory('Completed subtask', '');
+  }
+  updateProgress();
 }
 
 function updateProgress() {
-  let progress = (completedTasks / totalTasks) * 100;
+  let progress = totalItems === 0 ? 0 : (completedItems / totalItems) * 100;
   document.getElementById('progressBar').style.width = progress + '%';
 }
 
-function formatText(command) {
-  // Implement text formatting
+function formatText(command, value = null) {
+  document.execCommand(command, false, value);
 }
 
 function showHistory() {
+  document.getElementById('progressContainer').style.display = 'none';
   let contentArea = document.getElementById('contentArea');
   contentArea.innerHTML = '<h3>History</h3>';
   history.forEach(entry => {
@@ -173,16 +230,18 @@ function showHistory() {
 }
 
 function showToDo() {
-  document.getElementById('contentArea').innerHTML = '';
+  document.getElementById('progressContainer').style.display = 'block';
+  let contentArea = document.getElementById('contentArea');
+  contentArea.innerHTML = '';
   let taskList = document.createElement('div');
   taskList.id = 'taskList';
-  document.getElementById('contentArea').appendChild(taskList);
+  contentArea.appendChild(taskList);
 }
 
 function logHistory(action, id) {
-  let timestamp = new Date().toLocaleString();
-  history.push(`${timestamp}: ${action} ${id}`);
+  history.push(`${action} ${id}`);
 }
+
 </script>
 </body>
 </html>
