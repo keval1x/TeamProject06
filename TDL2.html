@@ -17,22 +17,11 @@ body {
   padding: 0;
 }
 
-.design-bar button, .design-bar select, .design-bar input[type="color"] {
+.design-bar button, .design-bar input[type="color"] {
   margin-right: 5px;
   border-radius: 5px;
   padding: 5px 10px;
   border: 1px solid #ccc;
-}
-
-.design-bar select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-.design-bar button, .design-bar select {
-  background-color: #007bff;
-  color: #fff;
 }
 
 .design-bar input[type="color"] {
@@ -40,6 +29,11 @@ body {
   width: 40px;
   height: 38px;
   border: none;
+}
+
+.design-bar button {
+  background-color: #007bff;
+  color: #fff;
 }
 
 .btn {
@@ -162,16 +156,7 @@ body {
       <div class="design-bar mb-2">
         <button onclick="formatText('bold')" onmousedown="event.preventDefault()">Bold</button>
         <button onclick="formatText('italic')" onmousedown="event.preventDefault()">Italic</button>
-        <input type="color" id="colorPicker" onchange="formatText('foreColor', this.value)" title="Choose Color">
-        <select onchange="formatText('fontName', this.value)" onmousedown="event.preventDefault()">
-          <option value="">Select Font</option>
-          <option value="Arial">Arial</option>
-          <option value="Courier New">Courier New</option>
-          <option value="Times New Roman">Times New Roman</option>
-          <option value="Georgia">Georgia</option>
-          <option value="Verdana">Verdana</option>
-          <!-- Add more fonts as desired -->
-        </select>
+        <input type="color" id="colorPicker" onchange="changeTextColor(this.value)" title="Choose Color">
       </div>
       <!-- Add Task Button -->
       <button class="btn btn-primary mb-2" onclick="addTask()">Add Task</button>
@@ -210,16 +195,21 @@ function addTask() {
     <div class="text-right mt-2">
       <button class="btn btn-secondary" onclick="addSubtask('${taskId}')">Add Subtask</button>
       <button class="btn btn-secondary" onclick="editTask('${taskId}', this)">Save</button>
+      <button class="btn btn-success" onclick="completeTask('${taskId}', this)">Complete</button>
       <button class="btn btn-danger" onclick="deleteTask('${taskId}')">Delete</button>
     </div>
   `;
   document.getElementById('taskList').appendChild(taskDiv);
   let contentDiv = taskDiv.querySelector('.task-content');
+  contentDiv.style.color = selectedColor;
   contentDiv.addEventListener('input', function() {
     autoResizeDiv(contentDiv);
   });
+  contentDiv.addEventListener('focus', function() {
+    document.execCommand('foreColor', false, selectedColor);
+  });
   contentDiv.focus();
-  logHistory('Added task', 'New Task');
+  // Do not log history here; wait until the task is saved
 }
 
 function addSubtask(parentId) {
@@ -231,18 +221,22 @@ function addSubtask(parentId) {
     <div class="status-label uncomplete">Uncomplete</div>
     <div class="text-right mt-2">
       <button class="btn btn-secondary" onclick="editSubtask(this)">Save</button>
-      <button class="btn btn-danger" onclick="deleteSubtask(this)">Delete</button>
       <button class="btn btn-success" onclick="completeSubtask(this)">Complete</button>
+      <button class="btn btn-danger" onclick="deleteSubtask(this)">Delete</button>
     </div>
   `;
   let parentDiv = document.getElementById(parentId);
   parentDiv.appendChild(subtaskDiv);
   let contentDiv = subtaskDiv.querySelector('.subtask-content');
+  contentDiv.style.color = selectedColor;
   contentDiv.addEventListener('input', function() {
     autoResizeDiv(contentDiv);
   });
+  contentDiv.addEventListener('focus', function() {
+    document.execCommand('foreColor', false, selectedColor);
+  });
   contentDiv.focus();
-  logHistory('Added subtask', 'New Subtask');
+  // Do not log history here; wait until the subtask is saved
 }
 
 function deleteTask(taskId) {
@@ -273,10 +267,12 @@ function editTask(taskId, button) {
   if (contentDiv.isContentEditable) {
     contentDiv.contentEditable = 'false';
     button.textContent = 'Edit';
-    logHistory('Edited task', contentDiv.textContent || 'Unnamed Task');
+    let taskName = contentDiv.textContent || 'Unnamed Task';
+    logHistory('Saved task', taskName);
   } else {
     contentDiv.contentEditable = 'true';
     contentDiv.focus();
+    document.execCommand('foreColor', false, selectedColor);
     button.textContent = 'Save';
   }
 }
@@ -287,12 +283,39 @@ function editSubtask(button) {
   if (contentDiv.isContentEditable) {
     contentDiv.contentEditable = 'false';
     button.textContent = 'Edit';
-    logHistory('Edited subtask', contentDiv.textContent || 'Unnamed Subtask');
+    let subtaskName = contentDiv.textContent || 'Unnamed Subtask';
+    logHistory('Saved subtask', subtaskName);
   } else {
     contentDiv.contentEditable = 'true';
     contentDiv.focus();
+    document.execCommand('foreColor', false, selectedColor);
     button.textContent = 'Save';
   }
+}
+
+function completeTask(taskId, button) {
+  let taskElement = document.getElementById(taskId);
+  let taskName = taskElement.querySelector('.task-content').textContent || 'Unnamed Task';
+  if (taskElement.dataset.completed === 'true') {
+    // Uncomplete task
+    completedTasks--;
+    taskElement.dataset.completed = 'false';
+    taskElement.style.textDecoration = 'none';
+    button.textContent = 'Complete';
+    button.classList.remove('btn-danger');
+    button.classList.add('btn-success');
+    logHistory('Uncompleted task', taskName);
+  } else {
+    // Complete task
+    completedTasks++;
+    taskElement.dataset.completed = 'true';
+    taskElement.style.textDecoration = 'line-through';
+    button.textContent = 'Uncomplete';
+    button.classList.remove('btn-success');
+    button.classList.add('btn-danger');
+    logHistory('Completed task', taskName);
+  }
+  updateProgress();
 }
 
 function completeSubtask(button) {
@@ -336,12 +359,16 @@ function checkTaskCompletion(taskId) {
       allSubtasksCompleted = false;
     }
   });
+  let completeButton = taskElement.querySelector('.btn-success, .btn-danger');
   if (allSubtasksCompleted) {
     if (taskElement.dataset.completed !== 'true') {
       // Mark task as completed
       completedTasks++;
       taskElement.dataset.completed = 'true';
       taskElement.style.textDecoration = 'line-through';
+      completeButton.textContent = 'Uncomplete';
+      completeButton.classList.remove('btn-success');
+      completeButton.classList.add('btn-danger');
       logHistory('Completed task', taskElement.querySelector('.task-content').textContent || 'Unnamed Task');
       updateProgress();
     }
@@ -351,6 +378,9 @@ function checkTaskCompletion(taskId) {
       completedTasks--;
       taskElement.dataset.completed = 'false';
       taskElement.style.textDecoration = 'none';
+      completeButton.textContent = 'Complete';
+      completeButton.classList.remove('btn-danger');
+      completeButton.classList.add('btn-success');
       logHistory('Uncompleted task', taskElement.querySelector('.task-content').textContent || 'Unnamed Task');
       updateProgress();
     }
@@ -364,6 +394,14 @@ function updateProgress() {
 
 function formatText(command, value = null) {
   document.execCommand(command, false, value);
+}
+
+function changeTextColor(color) {
+  selectedColor = color;
+  // Update the color of future text input
+  document.designMode = 'on';
+  document.execCommand('foreColor', false, selectedColor);
+  document.designMode = 'off';
 }
 
 function showToDo() {
@@ -410,18 +448,6 @@ function showDesign() {
   designContent.innerHTML = `
     <h3>Design Settings</h3>
     <div class="form-group">
-      <label for="generalFont">Select General Font:</label>
-      <select id="generalFont" onchange="changeGeneralFont(this.value)" class="form-control">
-        <option value="">Default</option>
-        <option value="Arial">Arial</option>
-        <option value="Courier New">Courier New</option>
-        <option value="Times New Roman">Times New Roman</option>
-        <option value="Georgia">Georgia</option>
-        <option value="Verdana">Verdana</option>
-        <!-- Add more fonts as desired -->
-      </select>
-    </div>
-    <div class="form-group">
       <label for="colorScheme">Color Scheme:</label>
       <select id="colorScheme" onchange="changeColorScheme(this.value)" class="form-control">
         <option value="light">Light</option>
@@ -429,10 +455,6 @@ function showDesign() {
       </select>
     </div>
   `;
-}
-
-function changeGeneralFont(font) {
-  document.body.style.fontFamily = font;
 }
 
 function changeColorScheme(scheme) {
