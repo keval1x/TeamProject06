@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const colorPicker = document.getElementById('color-picker');
+    const content = document.getElementById('todo-section'); // Modify this ID if needed
+
+    // Add an event listener to apply the color
+    colorPicker.addEventListener('input', (event) => {
+        content.style.color = event.target.value;
+    });
+
     const tasks = [];
     const history = [];
 
