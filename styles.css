@@ -85,16 +85,16 @@ body.light-theme .task-item input[type="text"] {
 }
 /* Toolbar Styles */
 .toolbar {
+    width: 100%; /* Matches the progress bar’s parent width */
     display: flex;
     align-items: center;
     gap: 10px;
     background-color: #f8f9fa;
     padding: 10px;
     border-bottom: 1px solid #dee2e6;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    margin-bottom: 10px; /* Adds space between toolbar and progress bar */
 }
+
 
 .toolbar label {
     font-weight: bold;
