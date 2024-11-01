@@ -141,10 +141,10 @@ body {
       </div>
     </div>
   </div>
-  <!-- Sidebar and Content -->
+  <!-- Sidebar -->
   <div class="row">
     <div class="col-md-2">
-      <!-- Sidebar -->
+      
       <ul class="list-group">
         <li class="list-group-item active" onclick="showToDo()" id="todoButton">To Do List</li>
         <li class="list-group-item" onclick="showHistory()" id="historyButton">History</li>
@@ -152,20 +152,20 @@ body {
       </ul>
     </div>
     <div class="col-md-10">
-      <!-- Formatting Buttons -->
+      <!-- Formatting -->
       <div class="design-bar mb-2">
         <button onclick="formatText('bold')" onmousedown="event.preventDefault()">Bold</button>
         <button onclick="formatText('italic')" onmousedown="event.preventDefault()">Italic</button>
         <input type="color" id="colorPicker" onchange="changeTextColor(this.value)" title="Choose Color">
       </div>
-      <!-- Add Task Button -->
+      <!-- Add Task-->
       <button class="btn btn-primary mb-2" onclick="addTask()">Add Task</button>
       <div id="contentArea">
         <!-- Task List -->
         <div id="taskList"></div>
-        <!-- History Content -->
+        <!-- History-->
         <div id="historyContent" style="display:none;"></div>
-        <!-- Design Content -->
+        <!-- Design -->
         <div id="designContent" style="display:none;"></div>
       </div>
     </div>
@@ -176,7 +176,7 @@ let taskCounter = 0;
 let totalTasks = 0;
 let completedTasks = 0;
 let history = [];
-let selectedColor = '#000000'; // Default text color
+let selectedColor = '#000000'; 
 
 function autoResizeDiv(div) {
   div.style.height = 'auto';
@@ -209,7 +209,7 @@ function addTask() {
     document.execCommand('foreColor', false, selectedColor);
   });
   contentDiv.focus();
-  // Do not log history here; wait until the task is saved
+  
 }
 
 function addSubtask(parentId) {
@@ -256,7 +256,7 @@ function deleteSubtask(button) {
   let subtaskName = subtaskElement.querySelector('.subtask-content').textContent || 'Unnamed Subtask';
   subtaskElement.remove();
   logHistory('Deleted subtask', subtaskName);
-  // Check if parent task needs to be updated
+  
   let parentTaskId = subtaskElement.parentElement.id;
   checkTaskCompletion(parentTaskId);
 }
@@ -297,7 +297,7 @@ function completeTask(taskId, button) {
   let taskElement = document.getElementById(taskId);
   let taskName = taskElement.querySelector('.task-content').textContent || 'Unnamed Task';
   if (taskElement.dataset.completed === 'true') {
-    // Uncomplete task
+    
     completedTasks--;
     taskElement.dataset.completed = 'false';
     taskElement.style.textDecoration = 'none';
@@ -306,7 +306,7 @@ function completeTask(taskId, button) {
     button.classList.add('btn-success');
     logHistory('Uncompleted task', taskName);
   } else {
-    // Complete task
+    
     completedTasks++;
     taskElement.dataset.completed = 'true';
     taskElement.style.textDecoration = 'line-through';
@@ -439,11 +439,11 @@ function showDesign() {
   document.getElementById('taskList').style.display = 'none';
   document.getElementById('historyContent').style.display = 'none';
   document.getElementById('designContent').style.display = 'block';
-  // Update active class
+ 
   document.getElementById('todoButton').classList.remove('active');
   document.getElementById('historyButton').classList.remove('active');
   document.getElementById('designButton').classList.add('active');
-  // Load design options
+ 
   let designContent = document.getElementById('designContent');
   designContent.innerHTML = `
     <h3>Design Settings</h3>
