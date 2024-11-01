@@ -36,7 +36,6 @@ include "session.php";
             </a>
         </fieldset>
     </form>
-    <script src="js/lreqs.js"></script>
 </body>
 </html>
 <?php
