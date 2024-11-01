@@ -14,6 +14,7 @@
     .subtask {
       width: 66.66%;
       margin-left: auto;
+      margin-left: 20px; /* Adjust subtask indentation */
     }
 
     .completed {
@@ -34,6 +35,17 @@
 
     .list-group-item {
       position: relative;
+    }
+
+    /* Adjust task actions alignment */
+    .task-actions .btn {
+      margin-left: 5px;
+    }
+
+    /* Style input fields within tasks */
+    .list-group-item .form-control {
+      width: 100%;
+      margin-right: 10px;
     }
   </style>
 </head>
@@ -118,16 +130,17 @@
 
     function createTaskActions(taskItem, taskDescription, isSubtask) {
       const taskActions = document.createElement('div');
+      taskActions.className = 'task-actions';
 
       // Edit button
       const editBtn = document.createElement('button');
-      editBtn.className = 'btn btn-sm btn-secondary mr-1';
+      editBtn.className = 'btn btn-sm btn-secondary';
       editBtn.innerText = 'Edit';
-      editBtn.addEventListener('click', () => editTask(taskDescription));
+      editBtn.addEventListener('click', () => editTask(taskItem, taskDescription));
 
       // Delete button
       const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'btn btn-sm btn-danger mr-1';
+      deleteBtn.className = 'btn btn-sm btn-danger';
       deleteBtn.innerText = 'Delete';
       deleteBtn.addEventListener('click', () => deleteTask(taskItem));
 
@@ -145,7 +158,7 @@
       // Add Subtask button for parent tasks
       if (!isSubtask) {
         const addSubtaskBtn = document.createElement('button');
-        addSubtaskBtn.className = 'btn btn-sm btn-primary ml-1';
+        addSubtaskBtn.className = 'btn btn-sm btn-primary';
         addSubtaskBtn.innerText = 'Add Subtask';
         addSubtaskBtn.addEventListener('click', () => addSubtask(taskItem));
         taskActions.appendChild(addSubtaskBtn);
@@ -155,40 +168,110 @@
     }
 
     function addSubtask(parentTaskItem) {
-      const subtaskText = prompt('Enter subtask description:');
+      // Create subtask item
+      const subtaskItem = document.createElement('li');
+      subtaskItem.className = 'list-group-item subtask';
 
-      if (subtaskText && subtaskText.trim() !== '') {
-        // Create subtask item
-        const subtaskItem = document.createElement('li');
-        subtaskItem.className = 'list-group-item subtask';
+      // Subtask content container
+      const subtaskContent = document.createElement('div');
+      subtaskContent.className = 'd-flex justify-content-between align-items-center';
 
-        // Subtask content container
-        const subtaskContent = document.createElement('div');
-        subtaskContent.className = 'd-flex justify-content-between align-items-center';
+      // Subtask input field
+      const subtaskInput = document.createElement('input');
+      subtaskInput.type = 'text';
+      subtaskInput.className = 'form-control';
+      subtaskInput.placeholder = 'Enter subtask...';
 
-        // Subtask text
+      // Subtask actions (empty for now)
+      const subtaskActions = document.createElement('div');
+
+      // Append input and actions to subtask content
+      subtaskContent.appendChild(subtaskInput);
+      subtaskContent.appendChild(subtaskActions);
+      subtaskItem.appendChild(subtaskContent);
+
+      // Insert subtask after parent task
+      parentTaskItem.insertAdjacentElement('afterend', subtaskItem);
+
+      // Focus on the input field
+      subtaskInput.focus();
+
+      // Handle input field events
+      subtaskInput.addEventListener('blur', () => saveSubtask(subtaskItem, subtaskInput, subtaskActions));
+      subtaskInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          saveSubtask(subtaskItem, subtaskInput, subtaskActions);
+        }
+      });
+    }
+
+    function saveSubtask(subtaskItem, subtaskInput, subtaskActions) {
+      const subtaskText = subtaskInput.value.trim();
+
+      if (subtaskText !== '') {
+        // Replace input field with text
         const subtaskDescription = document.createElement('span');
         subtaskDescription.innerText = subtaskText;
 
-        // Subtask actions
-        const subtaskActions = createTaskActions(subtaskItem, subtaskDescription, true);
+        // Clear previous content
+        subtaskItem.firstChild.innerHTML = '';
 
-        // Append content and actions to subtask item
-        subtaskContent.appendChild(subtaskDescription);
-        subtaskContent.appendChild(subtaskActions);
-        subtaskItem.appendChild(subtaskContent);
+        // Recreate subtask content with text and actions
+        subtaskItem.firstChild.appendChild(subtaskDescription);
+        subtaskItem.firstChild.appendChild(subtaskActions);
 
-        // Insert subtask after parent task
-        parentTaskItem.insertAdjacentElement('afterend', subtaskItem);
+        // Create actions
+        const actions = createTaskActions(subtaskItem, subtaskDescription, true);
+
+        // Append actions
+        subtaskActions.innerHTML = '';
+        subtaskActions.appendChild(actions);
 
         updateProgressBar();
+      } else {
+        // If input is empty, remove the subtask item
+        subtaskItem.parentElement.removeChild(subtaskItem);
       }
     }
 
-    function editTask(taskDescription) {
-      const newText = prompt('Edit task:', taskDescription.innerText);
-      if (newText !== null && newText.trim() !== '') {
+    function editTask(taskItem, taskDescription) {
+      // Replace text with input field
+      const taskText = taskDescription.innerText;
+      const taskInput = document.createElement('input');
+      taskInput.type = 'text';
+      taskInput.className = 'form-control';
+      taskInput.value = taskText;
+
+      // Replace the span with input field
+      taskItem.firstChild.replaceChild(taskInput, taskDescription);
+
+      // Focus on input field
+      taskInput.focus();
+
+      // Handle input field events
+      taskInput.addEventListener('blur', () => {
+        saveEditedTask(taskItem, taskInput);
+      });
+      taskInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          saveEditedTask(taskItem, taskInput);
+        }
+      });
+    }
+
+    function saveEditedTask(taskItem, taskInput) {
+      const newText = taskInput.value.trim();
+
+      if (newText !== '') {
+        const taskDescription = document.createElement('span');
         taskDescription.innerText = newText;
+
+        // Replace input with text
+        taskItem.firstChild.replaceChild(taskDescription, taskInput);
+      } else {
+        // If input is empty, delete the task
+        taskItem.parentElement.removeChild(taskItem);
+        updateProgressBar();
       }
     }
 
@@ -216,3 +299,4 @@
   </script>
 </body>
 </html>
+
