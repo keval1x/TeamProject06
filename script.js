@@ -278,7 +278,28 @@ document.addEventListener('DOMContentLoaded', () => {
             historyLog.appendChild(listItem);
         });
     }
-
+        document.getElementById('bold-btn').addEventListener('click', () => {
+        document.execCommand('bold');
+    });
+    
+    document.getElementById('italic-btn').addEventListener('click', () => {
+        document.execCommand('italic');
+    });
+    
+    document.getElementById('color-picker').addEventListener('change', (event) => {
+        document.execCommand('foreColor', false, event.target.value);
+    });
+    
+    document.getElementById('font-size-select').addEventListener('change', (event) => {
+        document.execCommand('fontSize', false, 7); // Setting size to 7 for custom styling
+        const fontElements = document.getElementsByTagName('font');
+        for (let i = 0; i < fontElements.length; i++) {
+            if (fontElements[i].size == "7") {
+                fontElements[i].removeAttribute("size");
+                fontElements[i].style.fontSize = event.target.value;
+            }
+        }
+    });
     // Design Section Handlers
     const colorSchemeSelect = document.getElementById('color-scheme');
     const fontSelect = document.getElementById('font-select');
