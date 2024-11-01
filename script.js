@@ -1,23 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
     const colorPicker = document.getElementById('color-picker');
-    const content = document.getElementById('todo-section'); // Modify this ID if needed
-
-    // Add an event listener to apply the color
-    colorPicker.addEventListener('input', (event) => {
-        content.style.color = event.target.value;
-    });
-
-    const tasks = [];
-    const history = [];
-
     const todoList = document.getElementById('todo-list');
     const addTaskBtn = document.getElementById('add-task-btn');
-    const progressBar = document.getElementById('progress-bar-inner');
-    const historyLog = document.getElementById('history-log');
+    let selectedColor = colorPicker.value;  // Track the selected color
 
-    // Section navigation
-    const navLinks = document.querySelectorAll('.list-group-item');
-    const sections = document.querySelectorAll('.section');
+    // Function to apply color to all existing tasks
+    function updateAllTasksColor(color) {
+        const tasks = todoList.getElementsByClassName('task-item');
+        for (let task of tasks) {
+            task.style.color = color;
+        }
+    }
+
+    // Listen for changes in the color picker
+    colorPicker.addEventListener('input', (event) => {
+        selectedColor = event.target.value;
+        updateAllTasksColor(selectedColor);  // Update color for all tasks when color changes
+    });
+
+    // Add a new task with the current selected color
+    addTaskBtn.addEventListener('click', () => {
+        const taskDiv = document.createElement('div');
+        taskDiv.classList.add('task-item');
+        taskDiv.textContent = 'New Task';
+        taskDiv.style.color = selectedColor;  // Apply selected color to new task
+        todoList.appendChild(taskDiv);
+    });
 
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
