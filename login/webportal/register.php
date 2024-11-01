@@ -26,7 +26,9 @@ include "session.php";
             <input class="lf mb-2" type="text" id="foren" name="foren">
             <input class="lf mb-2" type="text" id="surnm" name="surnm"><br>
             <button class="lf" type="submit" name="register">Register</button>
-            <button class="lf" type="button" onclick="lreq(true)">Return</button>
+            <a href="login.php">
+                <button class="lf" type="button">Return</button>
+            </a>
         </fieldset>
     </form>
     <script src="js/lreqs.js"></script>
