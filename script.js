@@ -278,28 +278,45 @@ document.addEventListener('DOMContentLoaded', () => {
             historyLog.appendChild(listItem);
         });
     }
-        document.getElementById('bold-btn').addEventListener('click', () => {
-        document.execCommand('bold');
+
+    // New formatting event listeners
+    document.getElementById('bold-btn').addEventListener('click', () => {
+        toggleStyle('fontWeight', 'bold', 'normal');
     });
-    
+
     document.getElementById('italic-btn').addEventListener('click', () => {
-        document.execCommand('italic');
+        toggleStyle('fontStyle', 'italic', 'normal');
     });
-    
+
     document.getElementById('color-picker').addEventListener('change', (event) => {
-        document.execCommand('foreColor', false, event.target.value);
+        applyStyle('color', event.target.value);
     });
-    
+
     document.getElementById('font-size-select').addEventListener('change', (event) => {
-        document.execCommand('fontSize', false, 7); // Setting size to 7 for custom styling
-        const fontElements = document.getElementsByTagName('font');
-        for (let i = 0; i < fontElements.length; i++) {
-            if (fontElements[i].size == "7") {
-                fontElements[i].removeAttribute("size");
-                fontElements[i].style.fontSize = event.target.value;
-            }
-        }
+        applyStyle('fontSize', event.target.value);
     });
+
+    // Helper functions for applying styles
+    function toggleStyle(style, valueOn, valueOff) {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const span = document.createElement('span');
+            span.style[style] = range.startContainer.parentNode.style[style] === valueOn ? valueOff : valueOn;
+            range.surroundContents(span);
+        }
+    }
+
+    function applyStyle(style, value) {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const span = document.createElement('span');
+            span.style[style] = value;
+            range.surroundContents(span);
+        }
+    }
+
     // Design Section Handlers
     const colorSchemeSelect = document.getElementById('color-scheme');
     const fontSelect = document.getElementById('font-select');
@@ -318,3 +335,4 @@ document.addEventListener('DOMContentLoaded', () => {
         addToHistory(`Changed font to ${fontSelect.options[fontSelect.selectedIndex].text}`);
     });
 });
+
