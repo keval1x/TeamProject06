@@ -15,22 +15,23 @@ include "session.php";
         echo '<script type="text/javascript"> window.location="homepage.php"; </script>'; 
     }
 ?>
-<body class="p-5 mx-6 border-0 bd-example m-0 border-0 my-5 c">
+<body class="p-5 mx-6 border-0 bd-example m-0 border-0 my-5 c bdy">
     <div class="container-fluid p-5 bg-primary text-white text-center min-width rbh">
         <h1>Make It All Webportal</h1>
     </div>
     <form action="register.php" method="post" class="p-5 c rbb">
         <fieldset>
-            <input class="lf mb-2" type="email" id="usern" name="usern" onkeydown="return event.key != 'Enter';">
-            <input class="lf mb-2" type="password" id="passw" name="passw"><br>
-            <input class="lf mb-2" type="text" id="foren" name="foren">
-            <input class="lf mb-2" type="text" id="surnm" name="surnm"><br>
-            <button class="lf" type="submit" name="register">Register</button>
+            <input class="lf mb-2 rbtb" type="email" id="usern" name="usern" onkeydown="return event.key != 'Enter';">
+            <input class="lf mb-2 rbtb" type="password" id="passw" name="passw"><br>
+            <input class="lf mb-4 rbtb" type="text" id="foren" name="foren">
+            <input class="lf mb-4 rbtb" type="text" id="surnm" name="surnm"><br>
+            <button class="lf rbtb blrc" type="submit" name="register">Register</button>
             <a href="login.php">
-                <button class="lf" type="button">Return</button>
+                <button class="lf rbtb brrc" type="button">Return</button>
             </a>
         </fieldset>
     </form>
+    <script src="js/lreqs.js"></script>
 </body>
 </html>
 <?php
@@ -98,4 +99,4 @@ if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST["register"])) {
 
 }
 
-//this file gives me the fucking disease, need to fix it
+//gross
