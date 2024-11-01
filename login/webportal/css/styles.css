@@ -27,5 +27,23 @@ div#login-style {
 
 .rbb {
   border-radius:0px 0px 25px 25px;
-  background-color: grey;
+  background-color: rgb(49, 50, 56);
+}
+
+.rbtb {
+  border-radius: 25px;
+  background-color: rgb(68, 69, 79);
+  box-shadow: none;
+}
+
+.blrc {
+  background-color: rgb(87, 163, 85);
+}
+
+.brrc {
+  background-color: rgb(100, 106, 112);
+}
+
+.bdy {
+  background-color: rgb(34, 35, 41);
 }
