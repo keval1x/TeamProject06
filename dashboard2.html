@@ -1,1 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Knowledge Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom CSS for the layout */
+        body {
+            background-color: #f0f4f8;
+            color: #000;
+            font-family: Arial, sans-serif;
+            display: flex;
+        }
+        .sidebar {
+            background-color: #333;
+            color: white;
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding-top: 20px;
+            padding-left: 20px;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
+        }
+        .content h2 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h5>Knowledge Management</h5>
+        <p>Manager's Tools</p>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link text-white" href="#">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="#">Manage Knowledge</a>
+            </li>
+        </ul>
+    </div>
+    <div class="content">
+        <h2>Knowledge Management - Edit Mode</h2>
+        
+        <div class="container">
+            <h3>Add or Edit Knowledge Entries</h3>
+            <form id="knowledge-form">
+                <div class="mb-3">
+                    <label for="topic" class="form-label">Topic</label>
+                    <input type="text" class="form-control" id="topic" placeholder="Enter Topic Name">
+                </div>
+                <div class="mb-3">
+                    <label for="content" class="form-label">Content</label>
+                    <textarea class="form-control" id="content" rows="5" placeholder="Enter Content"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="saveEntry()">Save</button>
+                <button type="button" class="btn btn-danger" onclick="deleteEntry()">Delete</button>
+            </form>
+
+            <h4 class="mt-4">Knowledge Entries</h4>
+            <ul class="list-group" id="knowledge-list">
+                <!-- Placeholder for dynamic entries -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function saveEntry() {
+            const topic = document.getElementById('topic').value;
+            const content = document.getElementById('content').value;
+            if (topic && content) {
+                const listItem = document.createElement('li');
+                listItem.classList.add('list-group-item');
+                listItem.innerHTML = `<strong>${topic}</strong>: ${content}`;
+                document.getElementById('knowledge-list').appendChild(listItem);
+                document.getElementById('knowledge-form').reset();
+            } else {
+                alert("Please fill in both fields.");
+            }
+        }
+
+        function deleteEntry() {
+            const list = document.getElementById('knowledge-list');
+            if (list.lastChild) {
+                list.removeChild(list.lastChild);
+            } else {
+                alert("No entries to delete.");
+            }
+        }
+    </script>
+</body>
+</html>
 
