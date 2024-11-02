@@ -19,6 +19,7 @@
     }
 
     .design-bar button,
+    .design-bar select,
     .design-bar input[type="color"] {
       margin-right: 5px;
       border-radius: 5px;
@@ -190,6 +191,16 @@
         <div class="design-bar mb-2">
           <button id="boldBtn" onmousedown="event.preventDefault()">Bold</button>
           <button id="italicBtn" onmousedown="event.preventDefault()">Italic</button>
+          <button id="indentBtn" onmousedown="event.preventDefault()">Indent</button>
+          <button id="outdentBtn" onmousedown="event.preventDefault()">Outdent</button>
+          <select id="fontPicker" class="form-control" style="display:inline-block; width:auto;">
+            <option value="">Select Font</option>
+            <option value="Arial">Arial</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Verdana">Verdana</option>
+          </select>
           <input
             type="color"
             id="color-picker"
@@ -219,8 +230,8 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="fontSelect">Font:</label>
-              <select id="fontSelect" class="form-control">
+              <label for="globalFontSelect">Font:</label>
+              <select id="globalFontSelect" class="form-control">
                 <option value="sans-serif">Sans-serif</option>
                 <option value="serif">Serif</option>
                 <option value="monospace">Monospace</option>
@@ -236,34 +247,41 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       let taskCounter = 0;
-      let totalTasks = 0;
-      let completedTasks = 0;
+      let tasks = [];
       let history = [];
       let selectedColor = "#000000";
-      let tasks = [];
+      let currentContentEditableElement = null;
 
       // Elements
       const boldBtn = document.getElementById("boldBtn");
       const italicBtn = document.getElementById("italicBtn");
+      const indentBtn = document.getElementById("indentBtn");
+      const outdentBtn = document.getElementById("outdentBtn");
       const colorPicker = document.getElementById("color-picker");
+      const fontPicker = document.getElementById("fontPicker");
       const addTaskBtn = document.getElementById("add-task-btn");
       const todoList = document.getElementById("todo-list");
       const progressBar = document.getElementById("progressBar");
-      const todoButton = document.getElementById("todoButton");
-      const historyButton = document.getElementById("historyButton");
-      const designButton = document.getElementById("designButton");
       const navLinks = document.querySelectorAll(".list-group-item");
       const sections = document.querySelectorAll(".section");
       const colorSchemeSelect = document.getElementById("colorScheme");
-      const fontSelect = document.getElementById("fontSelect");
+      const globalFontSelect = document.getElementById("globalFontSelect");
       const historyList = document.getElementById("historyList");
 
       // Event Listeners
       boldBtn.addEventListener("click", () => formatText("bold"));
       italicBtn.addEventListener("click", () => formatText("italic"));
+      indentBtn.addEventListener("click", () => formatText("indent"));
+      outdentBtn.addEventListener("click", () => formatText("outdent"));
       colorPicker.addEventListener("input", (event) =>
         changeTextColor(event.target.value)
       );
+      fontPicker.addEventListener("change", () => {
+        const fontName = fontPicker.value;
+        if (fontName) {
+          formatText("fontName", fontName);
+        }
+      });
       addTaskBtn.addEventListener("click", addTask);
 
       // Navigation Event Listeners
@@ -287,10 +305,10 @@
         changeColorScheme(colorSchemeSelect.value);
       });
 
-      fontSelect.addEventListener("change", () => {
-        document.body.style.fontFamily = fontSelect.value;
+      globalFontSelect.addEventListener("change", () => {
+        document.body.style.fontFamily = globalFontSelect.value;
         logHistory(
-          `Changed font to ${fontSelect.options[fontSelect.selectedIndex].text}`
+          `Changed font to ${globalFontSelect.options[globalFontSelect.selectedIndex].text}`
         );
       });
 
@@ -300,109 +318,161 @@
       }
 
       function addTask() {
-        totalTasks++;
         let taskId = "task" + taskCounter++;
-        let taskDiv = document.createElement("div");
-        taskDiv.className = "task-bar";
-        taskDiv.id = taskId;
-        taskDiv.dataset.completed = "false";
-
-        // Auto-generate the creation date
         const creationDate = new Date().toLocaleDateString();
 
-        taskDiv.innerHTML = `
-          <div contenteditable="true" class="task-content" placeholder="New Task"></div>
-          <div>
-              <label>Creation Date: </label><span>${creationDate}</span>
-          </div>
-          <div>
-              <label>Due Date:</label>
-              <input type="date" class="due-date" onchange="updateDueDate('${taskId}', this.value)">
-          </div>
-          <div class="text-right mt-2">
-              <button class="btn btn-secondary edit-task-btn">Save</button>
-              <button class="btn btn-success complete-task-btn">Complete</button>
-              <button class="btn btn-danger delete-task-btn">Delete</button>
-          </div>
-      `;
-        todoList.appendChild(taskDiv);
+        const taskObj = {
+          id: taskId,
+          title: '',
+          creationDate: creationDate,
+          dueDate: null,
+          priority: 'Medium', // Default priority
+          completed: false,
+          subtasks: []
+        };
 
-        let contentDiv = taskDiv.querySelector(".task-content");
-        contentDiv.style.color = selectedColor;
-        contentDiv.addEventListener("input", function () {
-          autoResizeDiv(contentDiv);
-        });
-        contentDiv.focus();
+        tasks.push(taskObj);
+
+        renderTasks();
 
         // Log creation with the creation date
         logHistory("Created task", `New Task (created on ${creationDate})`);
+      }
+
+      function renderTasks() {
+        // Clear the todoList
+        todoList.innerHTML = '';
+
+        // Sort tasks by priority
+        tasks.sort((a, b) => {
+          const priorityOrder = { 'High': 1, 'Medium': 2, 'Low': 3 };
+          return priorityOrder[a.priority] - priorityOrder[b.priority];
+        });
+
+        // Render each task
+        tasks.forEach((task) => {
+          const taskDiv = createTaskElement(task);
+          todoList.appendChild(taskDiv);
+        });
+
+        updateProgress();
+      }
+
+      function createTaskElement(task) {
+        let taskDiv = document.createElement("div");
+        taskDiv.className = "task-bar";
+        taskDiv.id = task.id;
+        taskDiv.dataset.completed = task.completed;
+
+        taskDiv.innerHTML = `
+          <div contenteditable="true" class="task-content">${task.title}</div>
+          <div>
+            <label>Creation Date: </label><span>${task.creationDate}</span>
+          </div>
+          <div>
+            <label>Due Date:</label>
+            <input type="date" class="due-date" value="${task.dueDate || ''}">
+          </div>
+          <div>
+            <label>Priority:</label>
+            <select class="priority-select">
+              <option value="High" ${task.priority === 'High' ? 'selected' : ''}>High</option>
+              <option value="Medium" ${task.priority === 'Medium' ? 'selected' : ''}>Medium</option>
+              <option value="Low" ${task.priority === 'Low' ? 'selected' : ''}>Low</option>
+            </select>
+          </div>
+          <div class="text-right mt-2">
+            <button class="btn btn-secondary edit-task-btn">Save</button>
+            <button class="btn btn-success complete-task-btn">${task.completed ? 'Uncomplete' : 'Complete'}</button>
+            <button class="btn btn-danger delete-task-btn">Delete</button>
+          </div>
+        `;
 
         // Event Listeners for Task Buttons
         const editBtn = taskDiv.querySelector(".edit-task-btn");
         const completeBtn = taskDiv.querySelector(".complete-task-btn");
         const deleteBtn = taskDiv.querySelector(".delete-task-btn");
+        const dueDateInput = taskDiv.querySelector(".due-date");
+        const prioritySelect = taskDiv.querySelector(".priority-select");
+        const contentDiv = taskDiv.querySelector(".task-content");
 
-        editBtn.addEventListener("click", () => editTask(taskId, editBtn));
-        completeBtn.addEventListener("click", () => completeTask(taskId, completeBtn));
-        deleteBtn.addEventListener("click", () => deleteTask(taskId));
-      }
+        editBtn.addEventListener("click", () => editTask(task, contentDiv, editBtn));
+        completeBtn.addEventListener("click", () => completeTask(task, completeBtn));
+        deleteBtn.addEventListener("click", () => deleteTask(task));
+        dueDateInput.addEventListener("change", () => updateDueDate(task, dueDateInput.value));
+        prioritySelect.addEventListener("change", () => updatePriority(task, prioritySelect.value));
 
-      function deleteTask(taskId) {
-        let taskElement = document.getElementById(taskId);
-        let taskName =
-          taskElement.querySelector(".task-content").textContent ||
-          "Unnamed Task";
-        if (taskElement.dataset.completed === "true") {
-          completedTasks--;
+        contentDiv.addEventListener("input", function () {
+          autoResizeDiv(contentDiv);
+        });
+
+        contentDiv.addEventListener('focus', function() {
+          currentContentEditableElement = this;
+        });
+
+        contentDiv.addEventListener('blur', function() {
+          currentContentEditableElement = null;
+        });
+
+        if (task.completed) {
+          contentDiv.style.textDecoration = "line-through";
         }
-        totalTasks--;
-        taskElement.remove();
-        updateProgress();
-        logHistory("Deleted task", taskName);
+
+        contentDiv.style.color = selectedColor;
+
+        return taskDiv;
       }
 
-      function editTask(taskId, button) {
-        let taskDiv = document.getElementById(taskId);
-        let contentDiv = taskDiv.querySelector(".task-content");
+      function editTask(task, contentDiv, button) {
         if (contentDiv.isContentEditable) {
           contentDiv.contentEditable = "false";
           button.textContent = "Edit";
-          let taskName = contentDiv.textContent || "Unnamed Task";
-          logHistory("Saved task", taskName);
+          task.title = contentDiv.textContent || "Unnamed Task";
+          logHistory("Saved task", task.title);
         } else {
           contentDiv.contentEditable = "true";
           contentDiv.focus();
-          document.execCommand("foreColor", false, selectedColor);
           button.textContent = "Save";
         }
       }
 
-      function completeTask(taskId, button) {
-        let taskElement = document.getElementById(taskId);
-        let taskName =
-          taskElement.querySelector(".task-content").textContent ||
-          "Unnamed Task";
-        if (taskElement.dataset.completed === "true") {
-          completedTasks--;
-          taskElement.dataset.completed = "false";
-          taskElement.style.textDecoration = "none";
-          button.textContent = "Complete";
-          button.classList.remove("btn-danger");
-          button.classList.add("btn-success");
-          logHistory("Uncompleted task", taskName);
-        } else {
-          completedTasks++;
-          taskElement.dataset.completed = "true";
-          taskElement.style.textDecoration = "line-through";
+      function completeTask(task, button) {
+        task.completed = !task.completed;
+        if (task.completed) {
           button.textContent = "Uncomplete";
           button.classList.remove("btn-success");
           button.classList.add("btn-danger");
-          logHistory("Completed task", taskName);
+          logHistory("Completed task", task.title);
+        } else {
+          button.textContent = "Complete";
+          button.classList.remove("btn-danger");
+          button.classList.add("btn-success");
+          logHistory("Uncompleted task", task.title);
         }
-        updateProgress();
+        renderTasks();
+      }
+
+      function deleteTask(task) {
+        tasks = tasks.filter(t => t.id !== task.id);
+        logHistory("Deleted task", task.title);
+        renderTasks();
+      }
+
+      function updateDueDate(task, dueDate) {
+        task.dueDate = dueDate;
+        logHistory("Updated due date", `Task: ${task.title}, Due: ${dueDate}`);
+      }
+
+      function updatePriority(task, priority) {
+        task.priority = priority;
+        logHistory("Updated priority", `Task: ${task.title}, Priority: ${priority}`);
+        renderTasks();
       }
 
       function updateProgress() {
+        const totalTasks = tasks.length;
+        const completedTasks = tasks.filter(task => task.completed).length;
+
         let progress =
           totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
         progressBar.style.width = progress + "%";
@@ -416,10 +486,8 @@
 
       function changeTextColor(color) {
         selectedColor = color;
-        // Update the color of future text input
-        document.designMode = "on";
-        document.execCommand("foreColor", false, selectedColor);
-        document.designMode = "off";
+        document.execCommand('styleWithCSS', false, true);
+        document.execCommand('foreColor', false, color);
       }
 
       function changeColorScheme(scheme) {
@@ -446,18 +514,10 @@
         });
       }
 
-      // Update Due Date
-      window.updateDueDate = function(taskId, dueDate) {
-        let taskElement = document.getElementById(taskId);
-        logHistory(
-          "Updated due date",
-          `Task: ${
-            taskElement.querySelector(".task-content").textContent ||
-            "Unnamed Task"
-          }, Due: ${dueDate}`
-        );
-      };
+      // Update Due Date (for global scope access)
+      window.updateDueDate = updateDueDate;
     });
   </script>
 </body>
 </html>
+
