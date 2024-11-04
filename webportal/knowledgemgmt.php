@@ -1,0 +1,285 @@
+<?php
+include "_session.php";
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Knowledge Management</title>
+    <!--using cdn to use the bootstrap framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://getbootstrap.com/docs/5.3/assets/css/docs.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</head>
+
+<body class="kmbody bdy">
+
+    <nav class="navbar navbar-expand-lg navbar-custom py-5">
+        <div class="container-fluid d-flex align-items-center position-relative">
+            <!-- Links for the buttons on the top left -->
+            <div class="d-flex">
+                <form action="dashboard.php" method="post">
+                    <fieldset>
+                        <button type="submit" class="btn btn-outline-secondary me-2 text-white mx-5" name="logout">Logout</button>
+                    </fieldset>
+                </form>
+                <a href="dashboard.php" class="btn btn-outline-secondary me-2 text-white mx-3">Dashboard</a>
+                <a href="forum.php" class="btn btn-outline-secondary me-2 text-white mx-3">Forums</a>
+            </div>
+    
+            <!-- Company Name Text -->
+            <div class="position-absolute top-50 start-50 translate-middle">
+                <span class="navbar-text text-white fs-1 fw-bold">MAKE-IT-ALL</span>
+            </div>
+    
+            <!-- Profile Picture Icon on the top right -->
+            <div class="position-relative ms-auto mx-5">
+                <i class="fa-solid fa-user fa-2x profile-icon" style="cursor:pointer;"></i>
+                <!-- Profile Picture -->
+                <div class="profile-picture">
+                    <strong>Manager Name:</strong> <br> <?php echo $_SESSION['FORENAME']; ?>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+<div class="sidebar">
+    <h5 class="h1p">Menu</h5>
+    <ul class="list-group">
+        <li class="list-group-item bg-dark text-light" onclick="openSettings()">Settings</li>
+        <a href="todo.php">
+            <li class="list-group-item bg-dark text-light">To-Do List</li>
+        </a>
+    </ul>
+</div>
+
+<div class="container text-white">
+    <h1 class="mb-4 h1p" style="text-align: left;">Knowledge Management</h1>
+
+    <!--content will automatically resize to fit window -->
+   <div class="d-grid gap-2 col-6">
+        <button class="btn btn-primary" type="button" id="tech" onclick="showInfo('tech')">Technical Knowledge</button>
+        <button class="btn btn-primary" type="button" id="non-tech" onclick="showInfo('non-tech')">Non-Technical Knowledge</button>
+    </div>
+    <br>
+    <br>
+    <div id="tech-p">
+        <h3>Technical Knowledge</h3>
+        <br>
+        <h5>Software Configurations</h5>
+        <ul>
+            <li><strong>Operating System Settings:</strong> Understanding how to configure settings for performance, security, and compatibility (e.g., Windows vs. Linux environments).</li>
+            <li><strong>Software Installation and Setup:</strong> Experience in properly installing and configuring applications to work with other systems and avoid conflicts.</li>
+            <li><strong>Version Control:</strong> Managing software versions through tools like Git, ensuring that software dependencies and updates are handled efficiently.</li>
+            <li><strong>Network Configuration:</strong> Setting up software for optimal network performance, including firewall settings, IP configurations, and network sharing protocols.</li>
+            <li><strong>Virtual Machines and Containers:</strong> Configuring virtual environments (e.g., Docker, VirtualBox) to simulate or isolate different operating systems and software environments.</li>
+        </ul>
+        <br>
+        <h5>Hardware Configurations</h5>
+        <ul>
+            <li><strong>Peripheral Setup:</strong> Knowledge of connecting and configuring external devices like printers, scanners, monitors, and external drives.</li>
+            <li><strong>BIOS/UEFI Settings:</strong> Familiarity with accessing and configuring BIOS/UEFI settings for boot sequences, hardware virtualization, and security options.</li>
+            <li><strong>Hardware Drivers:</strong> Installing and troubleshooting hardware drivers for proper functionality (e.g., GPU, sound cards, network adapters).</li>
+            <li><strong>System Upgrades:</strong> Configuring and upgrading components like RAM, SSDs, and GPUs to improve performance.</li>
+            <li><strong>Power and Cooling Management:</strong> Configuring power supply units, fans, and cooling systems for hardware longevity and performance optimization.</li>
+        </ul>
+        <br>
+        <h5>Common Technical Issues and Solutions</h5>
+        <ul>
+            <li><strong>Software Crashes:</strong> Debugging software through error logs, reinstalling faulty applications, or addressing corrupted system files to prevent crashes.</li>
+            <li><strong>Hardware Failures:</strong> Diagnosing and replacing faulty hardware components like hard drives, RAM, or GPUs through stress testing and diagnostics tools.</li>
+            <li><strong>Network Connectivity Issues:</strong> Resolving network issues by checking router/modem configurations, resetting IP addresses, or troubleshooting DNS settings.</li>
+            <li><strong>Slow Performance:</strong> Solving performance issues through system clean-up, memory management, closing unnecessary background processes, and updating drivers.</li>
+            <li><strong>Security Vulnerabilities:</strong> Addressing malware and security vulnerabilities by running antivirus programs, updating software, and configuring firewalls or other security settings.</li>
+        </ul>
+        <br>
+        <h5>Problem-Solving Techniques</h5>
+        <ul>
+            <li><strong>Root Cause Analysis:</strong> Identifying and analyzing the root causes of technical issues through step-by-step troubleshooting and system diagnostics.</li>
+            <li><strong>System Monitoring Tools:</strong> Utilizing tools like Task Manager, Resource Monitor, or third-party software to monitor system performance and identify bottlenecks.</li>
+            <li><strong>Rollback and Recovery:</strong> Implementing rollback strategies such as system restore points or backup images to recover from critical failures.</li>
+            <li><strong>Documentation and Procedures:</strong> Following documented procedures and best practices to avoid configuration errors and system misconfigurations.</li>
+        </ul>
+
+    </div>
+
+    <div id="non-tech-p">
+        <h3>Non-Technical Knowledge<h3>
+        <br>
+        <h5>Ordering and Managing Office Supplies</h5>
+        <ul>
+            <li><strong>Task:</strong> Ensure office supplies like printing paper, pens, and notebooks are stocked.</li>
+            <li><strong>Tips:</strong> Track inventory levels regularly, establish a reorder point for each item, and maintain relationships with reliable suppliers for timely restocking.</li>
+        </ul>
+        <br>
+        <h5>Document and File Management</h5>
+        <ul>
+            <li><strong>Task:</strong> Organize, archive, and retrieve both digital and physical documents.</li>
+            <li><strong>Tips:</strong> Use a consistent filing system, both digitally (e.g., cloud storage, shared drives) and physically (e.g., labelled folders). Regular audit files for relevance and securely dispose of outdated documents.</li>
+        </ul>
+        <br>
+        <h5>Scheduling and Calendar Management</h5>
+        <ul>
+            <li><strong>Task:</strong> Coordinate meetings, appointments, and other time-sensitive activities.</li>
+            <li><strong>Tips:</strong>Use shared digital calendars for transparency, set reminders for important events, and confirm appointments with all involved parties to avoid scheduling conflicts.</li>
+        </ul>
+        <br>
+        <h5>Managing Office Equipment</h5>
+        <ul>
+            <li><strong>Task:</strong> Ensure equipment like printers, copiers and phones are operational.</li>
+            <li><strong>Tips:</strong> Perform regular maintenance checks, keep user manuals and maintenance logs accesible, and contact service providers for repairs promptly to avoid downtime.</li>
+        </ul>
+        <br>
+        <h5>Processing Invoices and Expense Reports</h5>
+        <ul>
+            <li><strong>Task:</strong> Track and process expenses, purchase orders, and payments.</li>
+            <li><strong>Tips:</strong> Use software to streamline expense tracking, verify invoices for accuracy, and adhere to company policies for approvals and reimbursements.</li>
+        </ul>
+        <br>
+        <h5>Handling Mail and Deliveries</h5>
+        <ul>
+            <li><strong>Task:</strong> Receive, sort, and distribute incoming mail and packages and manage outgoing shipments</li>
+            <li><strong>Tips:</strong> Establish a clear procedure for incoming and outgoing mail, record deliveries, and communicate promptly with receipients to ensure timely handling</li>
+        </ul>
+        <br>
+        <h5>Maintaining Office Cleanliness and Organization</h5>
+        <ul>
+            <li><strong>Task:</strong> Keep communal areas tidy and organized to support a comfortable work environment.</li>
+            <li><strong>Tips:</strong> Set up a cleaning schedule, organize shared spaces (e.g., kitchen, supply closets), and encourage employees to maintain cleanliness by providing necessary supplies.</li>
+        </ul>
+        <br>
+        <h5>Data Entry and Updating Records</h5>
+        <ul>
+            <li><strong>Task:</strong> Accurately input and update information in databases or spreadsheets.</li>
+            <li><strong>Tips:</strong> Ensure attention to detail, use templates for consistency, and perform regular audits to verify data accuracy and relevance.</li>
+        </ul>
+        <br>
+        <h5>Coordinating Travel Arrangements</h5>
+        <ul>
+            <li><strong>Task:</strong> Arrange transportation, accomodations, and itineraries for business trips.</li>
+            <li><strong>Tips:</strong> Confirm preferences and budgets, provide detailed itineraries, and use travel management software or services to streamline booking and changes.</li>
+        </ul>
+        <br>
+        <h5>Customer Service and Front Desk Support</h5>
+        <ul>
+            <li><strong>Task:</strong> Greet visitors, answer phones, and assist with general inquiries.</li>
+            <li><strong>Tips:</strong> Maintain a friendly and professional demeanor, keep necessary information at hand, and direct inquiries to the appropriate department as needed.</li>
+        </ul>
+        <br>
+        <h5>Organising Office Events and Meetings</h5>
+        <ul>
+            <li><strong>Task:</strong> Plan and organize team meetings, company events, and training sessions.</li>
+            <li><strong>Tips:</strong> Book spaces in advance, coordinate with caterers or vendors, and prepare meeting agendas to keep events organized and productive.</li>
+        </ul>
+    </div>
+
+    <!-- Settings (Initially Hidden) -->
+    <div id="settings-section" style="display:none;">
+        <h5>Settings</h5>
+        <label for="font-select">Select Font:</label>
+        <select id="font-select" class="form-control" onchange="changeFont()">
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+        </select>
+        
+        <label for="color-select" class="mt-3">Select Color Scheme:</label>
+        <select id="color-select" class="form-control" onchange="changeColorScheme()">
+            <option value="default">Grey, Black, Pale Blue</option>
+            <option value="dark">Black, Dark Grey, Red</option>
+            <option value="light">White, Grey, Blue</option>
+        </select>
+    </div>
+ 
+</div>
+<!-- Bootstrap JS and jQuery (needed for Bootstrap JS components) -->
+<script>
+
+//Display text from the buttons
+function showInfo(type){
+    const techButton = document.getElementById("tech");
+    const nonTechButton = document.getElementById("non-tech");
+    const techInfo = document.getElementById("tech-p");
+    const nonTechInfo = document.getElementById("non-tech-p");
+
+    if (type === 'tech') {
+        if (techButton.classList.contains('active')) {
+            techButton.classList.remove('active');
+            techInfo.style.display = 'none';
+            nonTechButton.disabled = false;
+        } else {
+            techButton.classList.add('active');
+            techInfo.style.display = 'block';
+            nonTechButton.classList.remove('active');
+            nonTechInfo.style.display = 'none';
+            nonTechButton.disabled = true;
+        }
+    } else if (type === 'non-tech') {
+        if (nonTechButton.classList.contains('active')) {
+            nonTechButton.classList.remove('active');
+            nonTechInfo.style.display = 'none';
+            techButton.disabled = false;
+        } else {
+            nonTechButton.classList.add('active');
+            nonTechInfo.style.display = 'block';
+            techButton.classList.remove('active');
+            techInfo.style.display = 'none';
+            techButton.disabled = true;
+        }
+    }
+}
+// Function to open settings
+function openSettings() {
+    document.getElementById("settings-section").style.display = 'block';
+    document.getElementById("history-section").style.display = 'none';
+}
+
+// Function to open to do list
+function openToDoList(){
+    window.location.href = 'file:///C:/Users/elija/University/2nd%20Year/Team%20Project/tdl3.html';
+}
+
+// Function to change font
+function changeFont() {
+    const selectedFont = document.getElementById("font-select").value;
+    document.body.style.fontFamily = selectedFont;
+}
+
+// Function to change color scheme
+function changeColorScheme() {
+    const selectedScheme = document.getElementById("color-select").value;
+
+    if (selectedScheme === "default") {
+        document.body.style.backgroundColor = "#f0f4f8"; // Pale blue
+        document.body.style.color = "#000";
+        document.querySelectorAll(".btn-primary, .btn-success, .btn-danger").forEach(btn => {
+            btn.style.backgroundColor = "#1f77b4"; // Pale blue buttons
+            btn.style.borderColor = "#1f77b4";
+        });
+    } else if (selectedScheme === "dark") {
+        document.body.style.backgroundColor = "#000"; // Black
+        document.body.style.color = "#fff";
+        document.querySelectorAll(".btn-primary, .btn-success, .btn-danger").forEach(btn => {
+            btn.style.backgroundColor = "#d9534f"; // Red
+            btn.style.borderColor = "#d9534f";
+        });
+    } else if (selectedScheme === "light") {
+        document.body.style.backgroundColor = "#fff"; // White
+        document.body.style.color = "#000";
+        document.querySelectorAll(".btn-primary, .btn-success, .btn-danger").forEach(btn => {
+            btn.style.backgroundColor = "#5bc0de"; // Blue
+            btn.style.borderColor = "#5bc0de";
+        });
+    }
+}
+</script>
+</body>
+
+
+</html>
